@@ -1,0 +1,678 @@
+
+% Default to the notebook output style
+
+    
+
+
+% Inherit from the specified cell style.
+
+
+
+
+    
+\documentclass[11pt]{article}
+
+    
+    
+    \usepackage[T1]{fontenc}
+    % Nicer default font (+ math font) than Computer Modern for most use cases
+    \usepackage{mathpazo}
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % We will generate all images so they have a width \maxwidth. This means
+    % that they will get their normal width if they fit onto the page, but
+    % are scaled down if they would overflow the margins.
+    \makeatletter
+    \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+    \else\Gin@nat@width\fi}
+    \makeatother
+    \let\Oldincludegraphics\includegraphics
+    % Set max figure width to be 80% of text width, for now hardcoded.
+    \renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=.8\maxwidth]{#1}}
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionLabelFormat{nolabel}{}
+    \captionsetup{labelformat=nolabel}
+
+    \usepackage{adjustbox} % Used to constrain images to a maximum size 
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage[utf8x]{inputenc} % Allow utf-8 characters in the tex document
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    
+
+    
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatability definitions
+    \def\gt{>}
+    \def\lt{<}
+    % Document parameters
+    \title{2019-01-05-rltonoli-notebook1}
+    
+    
+    
+
+    % Pygments definitions
+    
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@fm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sa\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@dl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@mb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ch\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cpf\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % Exact colors from NB
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
+
+
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+    \begin{document}
+    
+    
+    \maketitle
+    
+    
+
+    
+    \subsection{Motion Retargeting}\label{motion-retargeting}
+
+\subsubsection{The BVH file format}\label{the-bvh-file-format}
+
+The Biovision Hierarchy (BVH) format stores animation data. It provides
+the information to construct a character and the pose of this character
+at each frame of the animation. The character is animated using a
+skeleton, a hierarchical structure composed of joints. The sense of
+motion comes from changes on the orientation (and sometimes translation)
+of these joints.
+
+The BVH file is divided into two sections: the header, identified by the
+keyword HIERARCHY, and the body, identified by MOTION. The header holds
+the skeleton hierarchy definition, i.e., the distance between each
+joint. The body section contains the animation, each line represents one
+frame in the animation, and it contains the orientation (and
+translation) at that frame.
+
+Except for the root joint, the first one in the hierarchy that often
+represents the hips, every joint has a parent joint. The values stored
+by the BVH file are relative to the parent joint, in order words, the
+orientation of a joint in a given frame is the local coordinate system
+of that joint in respect to its parent joint coordinate system.
+Furthermore, the orientation at a given frame represents the rotation
+from the base pose to its current position - and not from the last
+frame.
+
+\subsubsection{Import Libraries}\label{import-libraries}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{os}
+        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+        \PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+\end{Verbatim}
+
+
+    \subsubsection{The Joint and Animation
+Class}\label{the-joint-and-animation-class}
+
+Motion Retargeting process transfer motion between two skeletons. It is
+defined as the Animation Class to hold the information of each skeleton
+animation. The most important parameters of an Animation object is the
+name of the animation and a reference to the root joint of the skeleton.
+
+A Joint object contains a reference to its parent (except for the root),
+its children and the orientation and translation at each frame. Given
+the root joint, any joint is reachable recursively.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}2}]:} \PY{k}{class} \PY{n+nc}{Animation}\PY{p}{:}
+            \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}init\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{filename}\PY{p}{,} \PY{n}{root}\PY{p}{)}\PY{p}{:}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{name} \PY{o}{=} \PY{n}{filename}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{root} \PY{o}{=} \PY{n}{root}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{listofjoints} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{surfaceinfo} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{skeletonmap} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{frames} \PY{o}{=} \PY{k+kc}{None}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{frametime} \PY{o}{=} \PY{k+kc}{None}
+            
+            \PY{k}{def} \PY{n+nf}{getlistofjoints}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Get list of joints in the animation}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{k}{if} \PY{o+ow}{not} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{listofjoints}\PY{p}{:}
+                    \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{listofjoints} \PY{o}{=} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{\PYZus{}\PYZus{}auxgetlist}\PY{p}{(}\PY{k+kc}{None}\PY{p}{,} \PY{p}{[}\PY{p}{]}\PY{p}{)}
+                \PY{k}{return} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{listofjoints}
+                    
+            \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}auxgetlist}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{joint}\PY{o}{=}\PY{k+kc}{None}\PY{p}{,} \PY{n}{listofjoints} \PY{o}{=} \PY{p}{[}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Create and return list of joints in the animation}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{k}{if} \PY{o+ow}{not} \PY{n}{joint}\PY{p}{:}
+                    \PY{n}{joint} \PY{o}{=} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{root}
+                \PY{n}{listofjoints}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{joint}\PY{p}{)}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n}{joint}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                    \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{\PYZus{}\PYZus{}auxgetlist}\PY{p}{(}\PY{n}{child}\PY{p}{,} \PY{n}{listofjoints}\PY{p}{)}
+                \PY{k}{if} \PY{n}{joint} \PY{o}{==} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{root}\PY{p}{:}
+                    \PY{k}{return} \PY{n}{listofjoints}
+                
+            \PY{k}{def} \PY{n+nf}{getJoint}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{jointname}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Find the joint with jointname in the animation hierarchy}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{k}{return} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{getByName}\PY{p}{(}\PY{n}{jointname}\PY{p}{)}
+            
+        \PY{k}{class} \PY{n+nc}{Joints}\PY{p}{:}
+            \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}init\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{name}\PY{p}{,} \PY{n}{depth}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{parent}\PY{o}{=}\PY{k+kc}{None}\PY{p}{)}\PY{p}{:}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{name} \PY{o}{=} \PY{n}{name}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{depth} \PY{o}{=} \PY{n}{depth}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent} \PY{o}{=} \PY{n}{parent}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{endsite} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{translation} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{rotation} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{order} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{length} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{baserotation} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                \PY{k}{if} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent}\PY{p}{:}
+                    \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent}\PY{o}{.}\PY{n}{addChild}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}
+                    
+            \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}iter\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                    \PY{k}{yield} \PY{n}{child}
+                    
+            \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}reversed\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                \PY{k}{while} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent}\PY{p}{:}
+                    \PY{k}{yield} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent}
+                    \PY{n+nb+bp}{self} \PY{o}{=} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{parent}
+                    
+            \PY{k}{def} \PY{n+nf}{addChild}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{item}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Called after initialization of every joint except root}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{n}{item}\PY{o}{.}\PY{n}{parent} \PY{o}{=} \PY{n+nb+bp}{self}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{item}\PY{p}{)}
+                
+            \PY{k}{def} \PY{n+nf}{addOffset}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{offset}\PY{p}{)}\PY{p}{:}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{offset} \PY{o}{=} \PY{n}{offset}
+                
+            \PY{k}{def} \PY{n+nf}{addEndSite}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{endsite}\PY{o}{=}\PY{k+kc}{None}\PY{p}{)}\PY{p}{:}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{endsite} \PY{o}{=} \PY{n}{endsite}
+                \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{endsiteposition} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+                
+            \PY{k}{def} \PY{n+nf}{getLastDepth}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{depth}\PY{p}{,} \PY{n}{jointsInDepth} \PY{o}{=} \PY{p}{[}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Returns the last joint initializated with the depth provided}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{k}{if} \PY{n}{depth}\PY{o}{==}\PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{k}{return} \PY{n+nb+bp}{self}
+                \PY{k}{else}\PY{p}{:}
+                    \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                        \PY{k}{if} \PY{n}{child}\PY{o}{.}\PY{n}{depth} \PY{o}{==} \PY{n}{depth}\PY{p}{:}
+                            \PY{n}{jointsInDepth}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{child}\PY{p}{)}
+                        \PY{n}{child}\PY{o}{.}\PY{n}{getLastDepth}\PY{p}{(}\PY{n}{depth}\PY{p}{,} \PY{n}{jointsInDepth}\PY{p}{)}
+                    \PY{k}{return} \PY{n}{jointsInDepth}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}
+                
+            \PY{k}{def} \PY{n+nf}{getDepth}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                \PY{n}{depth} \PY{o}{=} \PY{l+m+mi}{0}
+                \PY{n}{joint} \PY{o}{=} \PY{n+nb+bp}{self}
+                \PY{k}{if} \PY{n}{joint}\PY{o}{.}\PY{n}{parent}\PY{p}{:}
+                    \PY{k}{while} \PY{n}{joint}\PY{o}{.}\PY{n}{parent}\PY{p}{:}
+                        \PY{n}{depth} \PY{o}{=} \PY{n}{depth} \PY{o}{+} \PY{l+m+mi}{1}
+                        \PY{n}{joint} \PY{o}{=} \PY{n}{joint}\PY{o}{.}\PY{n}{parent}
+                \PY{k}{return} \PY{n}{depth}
+            
+            \PY{k}{def} \PY{n+nf}{getByName}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{name}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Returns the joint object with the provided name}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{k}{if} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{name} \PY{o}{==} \PY{n}{name}\PY{p}{:}
+                    \PY{k}{return} \PY{n+nb+bp}{self}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                    \PY{k}{if} \PY{n}{child}\PY{o}{.}\PY{n}{name} \PY{o}{==} \PY{n}{name}\PY{p}{:}
+                        \PY{k}{return} \PY{n}{child}
+                    \PY{k}{else}\PY{p}{:}
+                        \PY{n}{found} \PY{o}{=} \PY{n}{child}\PY{o}{.}\PY{n}{getByName}\PY{p}{(}\PY{n}{name}\PY{p}{)}
+                        \PY{k}{if} \PY{n}{found}\PY{p}{:}
+                            \PY{k}{return} \PY{n}{found}
+                        
+            \PY{k}{def} \PY{n+nf}{printHierarchy}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{hierarchy}\PY{o}{=}\PY{p}{[}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Print hierarchy}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{n}{flag} \PY{o}{=} \PY{k+kc}{False}
+                \PY{k}{if} \PY{n+nb}{len}\PY{p}{(}\PY{n}{hierarchy}\PY{p}{)}\PY{o}{==}\PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{n}{flag} \PY{o}{=} \PY{k+kc}{True}
+                \PY{c+c1}{\PYZsh{}hierarchy.append(str.format(\PYZdq{}\PYZpc{}s\PYZpc{}s \PYZpc{}s\PYZdq{} \PYZpc{} (\PYZsq{} \PYZsq{}*2*int(self.depth),self.name, self.offset)))}
+                \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+si}{\PYZpc{}s}\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{ }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{o}{*}\PY{l+m+mi}{2}\PY{o}{*}\PY{n+nb}{int}\PY{p}{(}\PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{depth}\PY{p}{)}\PY{p}{,}\PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{name}\PY{p}{,} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{offset}\PY{p}{)}\PY{p}{)}
+                \PY{k}{try}\PY{p}{:}
+                    \PY{k}{if} \PY{n+nb}{len}\PY{p}{(}\PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{endsite}\PY{p}{)}\PY{o}{\PYZgt{}}\PY{l+m+mi}{0}\PY{p}{:}
+                        \PY{c+c1}{\PYZsh{}hierarchy.append(\PYZdq{}\PYZpc{}s\PYZpc{}s \PYZpc{}s\PYZdq{} \PYZpc{} (\PYZsq{} \PYZsq{}*2*(int(self.depth+1)),\PYZdq{}End Site\PYZdq{}, self.endsite))}
+                        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+si}{\PYZpc{}s}\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{ }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{o}{*}\PY{l+m+mi}{2}\PY{o}{*}\PY{p}{(}\PY{n+nb}{int}\PY{p}{(}\PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{depth}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{End Site}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{endsite}\PY{p}{)}\PY{p}{)}
+                \PY{k}{except}\PY{p}{:}
+                    \PY{k}{pass}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n+nb+bp}{self}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                    \PY{n}{child}\PY{o}{.}\PY{n}{printHierarchy}\PY{p}{(}\PY{n}{hierarchy}\PY{p}{)}
+                \PY{k}{if} \PY{n}{flag}\PY{p}{:}
+                    \PY{k}{return} \PY{n}{hierarchy}
+\end{Verbatim}
+
+
+    \subsubsection{Prepare BVH file
+conversion}\label{prepare-bvh-file-conversion}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}3}]:} \PY{k}{def} \PY{n+nf}{GetBVHDataFromFile}\PY{p}{(}\PY{n}{path}\PY{p}{)}\PY{p}{:}  
+            
+            \PY{k}{def} \PY{n+nf}{GetMotionLine}\PY{p}{(}\PY{n}{joint}\PY{p}{,} \PY{n}{frame}\PY{p}{,} \PY{n}{translation}\PY{o}{=}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{n}{rotation}\PY{o}{=}\PY{p}{[}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Get rotation and translation data for the joint at the given frame.}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{n}{translation}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{frame}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{n+nb}{len}\PY{p}{(}\PY{n}{translation}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{6}\PY{p}{:}\PY{n+nb}{len}\PY{p}{(}\PY{n}{translation}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{6}\PY{o}{+}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{)}
+                \PY{n}{rotation}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{frame}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{n+nb}{len}\PY{p}{(}\PY{n}{rotation}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{6}\PY{o}{+}\PY{l+m+mi}{3}\PY{p}{:}\PY{n+nb}{len}\PY{p}{(}\PY{n}{rotation}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{6}\PY{o}{+}\PY{l+m+mi}{6}\PY{p}{]}\PY{p}{)}
+                \PY{n}{joint}\PY{o}{.}\PY{n}{translation}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{translation}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                \PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{rotation}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n}{joint}\PY{o}{.}\PY{n}{children}\PY{p}{:}
+                    \PY{n}{GetMotionLine}\PY{p}{(}\PY{n}{child}\PY{p}{,}\PY{n}{frame}\PY{p}{,} \PY{n}{translation}\PY{p}{,} \PY{n}{rotation}\PY{p}{)}
+                \PY{k}{return} \PY{n}{translation}\PY{p}{,} \PY{n}{rotation}
+            
+            \PY{k}{def} \PY{n+nf}{Motion2NP}\PY{p}{(}\PY{n}{joint}\PY{p}{)}\PY{p}{:}
+                \PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+        \PY{l+s+sd}{        Transform rotation and position into numpy arrays}
+        \PY{l+s+sd}{        \PYZdq{}\PYZdq{}\PYZdq{}}
+                \PY{n}{joint}\PY{o}{.}\PY{n}{translation} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{asarray}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{translation}\PY{p}{,} \PY{n+nb}{float}\PY{p}{)}
+                \PY{n}{joint}\PY{o}{.}\PY{n}{rotation} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{asarray}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{,} \PY{n+nb}{float}\PY{p}{)}
+                \PY{n}{joint}\PY{o}{.}\PY{n}{offset} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{asarray}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{offset}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,}\PY{n+nb}{float}\PY{p}{)}
+                \PY{k}{if} \PY{n}{joint}\PY{o}{.}\PY{n}{order}\PY{o}{==}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ZXY}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}
+                    \PY{n}{aux} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{joint}\PY{o}{.}\PY{n}{rotation}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{n}{aux}\PY{p}{)}
+                \PY{k}{if} \PY{n}{joint}\PY{o}{.}\PY{n}{endsite}\PY{p}{:}
+                    \PY{n}{joint}\PY{o}{.}\PY{n}{endsite} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{asarray}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{endsite}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,}\PY{n+nb}{float}\PY{p}{)}
+                \PY{k}{for} \PY{n}{child} \PY{o+ow}{in} \PY{n}{joint}\PY{p}{:}
+                    \PY{n}{Motion2NP}\PY{p}{(}\PY{n}{child}\PY{p}{)}
+            
+            \PY{k}{with} \PY{n+nb}{open}\PY{p}{(}\PY{n}{path}\PY{p}{)} \PY{k}{as} \PY{n}{file}\PY{p}{:}
+                \PY{n}{data} \PY{o}{=} \PY{p}{[}\PY{n}{line} \PY{k}{for} \PY{n}{line} \PY{o+ow}{in} \PY{n}{file}\PY{p}{]}
+            \PY{n}{offsetList} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+            \PY{n}{listofjoints} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+            \PY{n}{flagEndSite} \PY{o}{=} \PY{k+kc}{False}
+            \PY{k}{for} \PY{n}{line} \PY{o+ow}{in} \PY{n}{data}\PY{p}{:}
+                \PY{k}{if} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ROOT}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{c+c1}{\PYZsh{}Creates root joint}
+                    \PY{n}{root} \PY{o}{=} \PY{n}{Joints}\PY{p}{(}\PY{n}{name} \PY{o}{=} \PY{n}{line}\PY{p}{[}\PY{l+m+mi}{5}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{lastJoint} \PY{o}{=} \PY{n}{root}
+                    \PY{n}{listofjoints}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{line}\PY{p}{[}\PY{l+m+mi}{5}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                    \PY{c+c1}{\PYZsh{}Create the object of this file}
+                    \PY{n}{filename} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{basename}\PY{p}{(}\PY{n}{path}\PY{p}{)}\PY{p}{[}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{4}\PY{p}{]}
+                    \PY{n}{bvhfile} \PY{o}{=} \PY{n}{Animation}\PY{p}{(}\PY{n}{filename}\PY{p}{,} \PY{n}{root}\PY{p}{)}
+                \PY{k}{if} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{JOINT}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{n}{depth} \PY{o}{=} \PY{n}{line}\PY{o}{.}\PY{n}{count}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+se}{\PYZbs{}t}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+                    \PY{k}{if} \PY{n}{depth} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{:}
+                        \PY{n}{depth} \PY{o}{=} \PY{n}{line}\PY{p}{[}\PY{p}{:}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{JOINT}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{o}{.}\PY{n}{count}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{/}\PY{l+m+mi}{2}
+                    \PY{n}{parent} \PY{o}{=} \PY{n}{root}\PY{o}{.}\PY{n}{getLastDepth}\PY{p}{(}\PY{n}{depth}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{)}
+                    \PY{c+c1}{\PYZsh{}Creates joint}
+                    \PY{n}{lastJoint} \PY{o}{=} \PY{n}{Joints}\PY{p}{(}\PY{n}{name} \PY{o}{=} \PY{n}{line}\PY{p}{[}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{JOINT}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{6}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{depth}\PY{o}{=}\PY{n}{depth}\PY{p}{,} \PY{n}{parent}\PY{o}{=}\PY{n}{parent}\PY{p}{)}
+                    \PY{n}{listofjoints}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{line}\PY{p}{[}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{JOINT}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{6}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                \PY{k}{if} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{End Site}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{n}{flagEndSite} \PY{o}{=} \PY{k+kc}{True}
+                    \PY{n}{listofjoints}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{End Site}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                \PY{k}{if} \PY{p}{(}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{OFFSET}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)} \PY{o+ow}{and} \PY{p}{(}\PY{o+ow}{not} \PY{n}{flagEndSite}\PY{p}{)}\PY{p}{:}
+                    \PY{n}{lastJoint}\PY{o}{.}\PY{n}{addOffset}\PY{p}{(}\PY{n}{line}\PY{p}{[}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{OFFSET}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{7}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{offsetList}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{line}\PY{p}{[}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{OFFSET}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{7}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                \PY{k}{elif} \PY{p}{(}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{OFFSET}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)} \PY{o+ow}{and} \PY{p}{(}\PY{n}{flagEndSite}\PY{p}{)}\PY{p}{:}
+                    \PY{n}{lastJoint}\PY{o}{.}\PY{n}{addEndSite}\PY{p}{(}\PY{n}{line}\PY{p}{[}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{OFFSET}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{7}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{flagEndSite} \PY{o}{=} \PY{k+kc}{False}
+                \PY{k}{if} \PY{p}{(}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{CHANNELS}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{n}{X} \PY{o}{=} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Xrotation}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                    \PY{n}{Y} \PY{o}{=} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Yrotation}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                    \PY{n}{Z} \PY{o}{=} \PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Zrotation}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                    \PY{k}{if} \PY{n}{Z} \PY{o}{\PYZlt{}} \PY{n}{X} \PY{o+ow}{and} \PY{n}{X} \PY{o}{\PYZlt{}} \PY{n}{Y}\PY{p}{:}
+                        \PY{n}{lastJoint}\PY{o}{.}\PY{n}{order} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ZXY}\PY{l+s+s2}{\PYZdq{}}
+                    \PY{k}{elif} \PY{n}{X} \PY{o}{\PYZlt{}} \PY{n}{Y} \PY{o+ow}{and} \PY{n}{Y} \PY{o}{\PYZlt{}} \PY{n}{Z}\PY{p}{:}
+                        \PY{n}{lastJoint}\PY{o}{.}\PY{n}{order} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{XYZ}\PY{l+s+s2}{\PYZdq{}}
+                    \PY{k}{else}\PY{p}{:}
+                        \PY{n}{lastJoint}\PY{o}{.}\PY{n}{order}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{XYZ}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Invalid Channels order. XYZ chosen.}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                \PY{k}{if} \PY{p}{(}\PY{n}{line}\PY{o}{.}\PY{n}{find}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{MOTION}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{:}
+                    \PY{n}{index} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{index}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{MOTION}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+                    \PY{n}{frames} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{index}\PY{o}{+}\PY{l+m+mi}{3}\PY{p}{:}\PY{p}{]}
+                    \PY{n}{bvhfile}\PY{o}{.}\PY{n}{frames} \PY{o}{=} \PY{n+nb}{int}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{n}{index}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{8}\PY{p}{:}\PY{p}{]}\PY{p}{)}
+                    \PY{n}{bvhfile}\PY{o}{.}\PY{n}{frametime} \PY{o}{=} \PY{n+nb}{float}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{n}{index}\PY{o}{+}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{12}\PY{p}{:}\PY{p}{]}\PY{p}{)}
+                    \PY{k}{break}
+            \PY{c+c1}{\PYZsh{}Go to the next line}
+            \PY{k}{for} \PY{n}{counter} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{frames}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+                \PY{n}{GetMotionLine}\PY{p}{(}\PY{n}{root}\PY{p}{,} \PY{n}{frames}\PY{p}{[}\PY{n}{counter}\PY{p}{]}\PY{p}{,} \PY{n}{translation}\PY{o}{=}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{n}{rotation}\PY{o}{=}\PY{p}{[}\PY{p}{]}\PY{p}{)}
+            \PY{c+c1}{\PYZsh{}Convert values to numpy array}
+            \PY{n}{Motion2NP}\PY{p}{(}\PY{n}{bvhfile}\PY{o}{.}\PY{n}{root}\PY{p}{)}
+            \PY{k}{return} \PY{n}{bvhfile}
+\end{Verbatim}
+
+
+    \subsubsection{Read BVH file}\label{read-bvh-file}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}8}]:} \PY{n}{filename} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{RodolfoClaping.bvh}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{currentdir} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{getcwd}\PY{p}{(}\PY{p}{)}
+        \PY{n}{datapath} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{currentdir}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{..}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{sampledata}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{fullpath} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{datapath}\PY{p}{,} \PY{n}{filename}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{n}{fullpath}\PY{p}{)}
+        \PY{n}{animation} \PY{o}{=} \PY{n}{GetBVHDataFromFile}\PY{p}{(}\PY{n}{fullpath}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+C:\textbackslash{}Users\textbackslash{}Rodolfo\textbackslash{}Desktop\textbackslash{}IA369\textbackslash{}dev\textbackslash{}..\textbackslash{}sampledata\textbackslash{}RodolfoClaping.bvh
+
+    \end{Verbatim}
+
+    Check the animation name and reference to the root joint
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}9}]:} \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Animation name: }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s1}{. Type: }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s1}{\PYZsq{}} \PY{o}{\PYZpc{}} \PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{name}\PY{p}{,} \PY{n+nb}{type}\PY{p}{(}\PY{n}{animation}\PY{p}{)}\PY{p}{)}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Animation root: }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s1}{. Type: }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s1}{\PYZsq{}} \PY{o}{\PYZpc{}} \PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{name}\PY{p}{,} \PY{n+nb}{type}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{p}{)}\PY{p}{)}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Number of joints: }\PY{l+s+si}{\PYZpc{}i}\PY{l+s+s1}{\PYZsq{}} \PY{o}{\PYZpc{}} \PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{getlistofjoints}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Animation name: RodolfoClaping. Type: <class '\_\_main\_\_.Animation'>
+Animation root: Hips. Type: <class '\_\_main\_\_.Joints'>
+Number of joints: 30
+
+    \end{Verbatim}
+
+    Print the name of the joints and their distance from parents recursively
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}10}]:} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{printHierarchy}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Hips [ 5.04731 94.866   -7.60916]
+  Spine [ 0.      15.3684  -2.40487]
+    Spine1 [0.      9.79164 0.     ]
+      Spine2 [0.      9.79164 0.     ]
+        Spine3 [0.      9.79164 0.     ]
+          Neck [ 0.      12.5893   1.25893]
+            Neck1 [0.    4.095 0.   ]
+              Head [0.    4.095 0.   ]
+                End Site [0.      9.72808 0.     ]
+          RightShoulder [0.      8.99232 5.27092]
+            RightArm [ 0.     21.4762  0.    ]
+              RightForeArm [ 0.     30.4806  0.    ]
+                RightHand [ 0.     25.7941  0.    ]
+                  RightHandThumb1 [-3.10387  3.51294  2.61218]
+                    End Site [0. 0. 0.]
+                  RightHandMiddle1 [ 0.         9.36783   -0.0600502]
+                    End Site [0. 0. 0.]
+          LeftShoulder [0.      8.99232 5.27092]
+            LeftArm [ 0.     21.4762  0.    ]
+              LeftForeArm [ 0.     30.4806  0.    ]
+                LeftHand [ 0.     25.7941  0.    ]
+                  LeftHandThumb1 [3.10387 3.51294 2.61218]
+                    End Site [0. 0. 0.]
+                  LeftHandMiddle1 [ 0.         9.36783   -0.0600502]
+                    End Site [0. 0. 0.]
+  RightUpLeg [-10.4733   0.       0.    ]
+    RightLeg [  0.     -45.8208   0.    ]
+      RightFoot [  0.     -45.0804   0.    ]
+        RightForeFoot [ 0.      -4.41419  0.     ]
+          RightToeBase [ 0.      0.     17.2874]
+            End Site [0.      0.      5.58569]
+  LeftUpLeg [10.4733  0.      0.    ]
+    LeftLeg [  0.     -45.8208   0.    ]
+      LeftFoot [  0.     -45.0804   0.    ]
+        LeftForeFoot [ 0.      -4.41419  0.     ]
+          LeftToeBase [ 0.      0.     17.2874]
+            End Site [0.      0.      4.94953]
+
+    \end{Verbatim}
+
+    \subsubsection{Animation}\label{animation}
+
+The only translational joint of the hierarchy is the hips joint, or
+root, so that the character is able to move accros the volume. All the
+other joints are usually revolute, slot or spherical joints with 1, 2
+and 3 degrees of freedom, respectively.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}11}]:} \PY{n}{fig} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{12}\PY{p}{,}\PY{l+m+mi}{8}\PY{p}{)}\PY{p}{)}
+         \PY{n}{ax1} \PY{o}{=} \PY{n}{fig}\PY{o}{.}\PY{n}{add\PYZus{}subplot}\PY{p}{(}\PY{l+m+mi}{221}\PY{p}{)}
+         \PY{n}{ax1}\PY{o}{.}\PY{n}{set\PYZus{}xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Frames}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{ax1}\PY{o}{.}\PY{n}{set\PYZus{}ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Translation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         
+         \PY{k}{for} \PY{n}{joint} \PY{o+ow}{in} \PY{n}{animation}\PY{o}{.}\PY{n}{getlistofjoints}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+             \PY{k}{if} \PY{n}{joint}\PY{o}{.}\PY{n}{name} \PY{o}{!=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Hips}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}
+                 \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{translation} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{joint}\PY{o}{.}\PY{n}{translation}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{)}
+                 
+         \PY{n}{ax2} \PY{o}{=} \PY{n}{fig}\PY{o}{.}\PY{n}{add\PYZus{}subplot}\PY{p}{(}\PY{l+m+mi}{222}\PY{p}{)}
+         \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{)}
+         
+         \PY{n}{mini}\PY{p}{,}\PY{n}{maxi} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{min}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{animation}\PY{o}{.}\PY{n}{root}\PY{o}{.}\PY{n}{translation}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{)}
+         
+         \PY{c+c1}{\PYZsh{}ax1.set\PYZus{}ylim(mini,maxi)}
+         \PY{n}{ax2}\PY{o}{.}\PY{n}{set\PYZus{}ylim}\PY{p}{(}\PY{n}{mini}\PY{p}{,}\PY{n}{maxi}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}11}]:} (-0.9494137433862431, 0.8053762566137577)
+\end{Verbatim}
+            
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_13_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+    \end{document}
