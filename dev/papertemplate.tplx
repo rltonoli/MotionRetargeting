@@ -1,0 +1,14 @@
+((*- extends 'article.tplx' -*))
+
+((* block author *))
+\author{Rodolfo L. Tonoli}
+((* endblock author *))
+
+((* block title *))
+\title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
+((* endblock title *))
+
+((* block bibliography *))
+\bibliographystyle{plain}
+\bibliography{reference}
+((* endblock bibliography *))
