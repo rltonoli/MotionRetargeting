@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -355,7 +354,7 @@ def plotAxesVectors(x,y,z=False):
     if z:
         ax.plot([0,z[0]],[0,z[1]],[0, z[2]], color='blue')
     plt.show()
-    
+
 def plotVector(vec):
     fig = plt.figure(figsize=(12,8))
     ax = fig.add_subplot(111, projection='3d')
@@ -513,18 +512,17 @@ def PlotBVH(animation):
     :type animation: Animation class object
     :param animation: Animation to be draw
     """
+    print('hi')
+
     def update(frame, scatters):
-        print(frame)
         for scat, joint in zip(scatters,animation.getlistofjoints()):
             position = joint.getPosition(frame)
             scat.set_data([position[0]],[position[1]])
             scat.set_3d_properties([position[2]])
-
         return scatters
 
     fig = plt.figure(figsize=(12,8))
     ax = fig.add_subplot(111, projection='3d')
-
     scatters = []
     maxdata = -np.inf
     mindata = np.inf
@@ -535,18 +533,14 @@ def PlotBVH(animation):
             mindata = np.min(position)
         if np.max(position)>maxdata:
             maxdata = np.max(position)
-
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     ax.set_xlim(mindata,maxdata)
     ax.set_ylim(mindata,maxdata)
     ax.set_zlim(mindata,maxdata)
-    ani = FuncAnimation(fig, update, frames=np.arange(animation.frames), fargs=(scatters) ,interval=1,
-                             blit=True)
-
-    plt.show()
-
+    ani = FuncAnimation(fig, update, frames=np.arange(animation.frames), fargs=([scatters]) ,interval=1, blit=True)
+    return ani
 
 def PlotPoseAndSurface(animation, surface, frame):
     fig = plt.figure(figsize=(12,8))
@@ -588,14 +582,14 @@ def PlotPoseAndSurface(animation, surface, frame):
 #                             blit=True)
 
     plt.show()
-    
-    
+
+
 def CheckTargets(animation, joint, joint1, ego):
     target = np.asarray([ego.getTarget(frame) for frame in range(animation.frames)])
     position = np.asarray([joint.getPosition(frame) for frame in range(animation.frames)])
     position1 = np.asarray([joint1.getPosition(frame) for frame in range(animation.frames)])
-    
-    
+
+
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(target[:,0], label='X', color = 'red', linestyle = '--')
@@ -607,6 +601,6 @@ def CheckTargets(animation, joint, joint1, ego):
     ax.plot(position1[:,0], color = 'black', linestyle = '-')
     ax.plot(position1[:,1], color = 'black', linestyle = '-')
     ax.plot(position1[:,2], color = 'black', linestyle = '-')
-    
+
     plt.legend(title='Target position:')
     plt.show()
