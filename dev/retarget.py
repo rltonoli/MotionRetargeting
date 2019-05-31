@@ -134,7 +134,7 @@ def PostureInitialization(ani_ava, ani_mocap, getpositions=False, headAlign = Tr
                 #Get new local rotation euler angles
                 tgtNewLclRotationEuler, warning = mathutils.eulerFromMatrix(tgtNewLclRotationMat, avabone[0].order)
                 avabone[0].rotation[frame] = tgtNewLclRotationEuler
-                
+
         else:
             for joint_ava, joint_mocap in zip(avamap.getJointsNoRootHips(), mocapmap.getJointsNoRootHips()):
                 if joint_ava is not None and joint_mocap is not None:
@@ -180,9 +180,9 @@ def PostureInitialization(ani_ava, ani_mocap, getpositions=False, headAlign = Tr
     #     se for o componente mais proximo e o produto interno for negativo, significa que esta penetrando
     #     calcular a penetracao e empurrar a junta pra fora
     # pegar todas as juntas que sao filhas das mãos e pés, fazer a mesma coisa que de cima
-        
-        
-    
+
+
+
 
 
 def checkName(name):
@@ -252,13 +252,9 @@ for path in sourceanimations:
     #Read TPose bvh file #####################################################
     start = time.time()
     avatar = pyanimation.ReadFile(targettpose)
-    #Get skeleton map
-    avatarmap = avatar.getskeletonmap(mapfile = skeletonmappath)
     #Get the avatar surface data
     avatarSurface = surface.GetAvatarSurfaceFromCSV(targetsurface, highpolymesh = False)
     #Scale the avatar surface data accordingly to the TPose bvh data
-    avatarSurface.NormalizeSurfaceData(hipsjoint = avatarmap.hips)
-    surface.GetAvatarSurfaceLocalTransform(avatar, avatarSurface)
     print('Avatar BVH read done. %s seconds.' % (time.time()-start))
 
     # avatar.PlotPose(0,avatarSurface)
@@ -272,7 +268,7 @@ for path in sourceanimations:
 
 #    avatar.PlotPose(400, avatarSurface)
 #    mocap.PlotAnimation(mocapSurface)
-    
+
     # Calculate egocentric coordinates ############################################
     start = time.time()
     print('Getting Egocentric coordinates')
@@ -284,7 +280,7 @@ for path in sourceanimations:
     # Aplica Cinemática Inversa ###################################################
     targetRHand = [0,0,0]
     targetLHand = [0,0,0]
-    
+
     JacRHand = ik.SimpleJacobian(avatar, avatar.getskeletonmap().rhand, depth = 5)
     JacLHand = ik.SimpleJacobian(avatar, avatar.getskeletonmap().lhand, depth = 5)
     iklogRHand = []
@@ -305,7 +301,7 @@ for path in sourceanimations:
             start=time.time()
 
 
-    # # Adjust Limb Extremities ##################################################      
+    # # Adjust Limb Extremities ##################################################
     egocentriccoord.AdjustExtremityOrientation(avatar, avatarSurface, egocoord, mocap)
 
 
@@ -320,9 +316,9 @@ for path in sourceanimations:
     pyanimation.WriteBVH(avatar, realpath, output_filename,refTPose=True)
 
     print('Done! Total time: %s seconds.' % (time.time()-retargettime))
-    
-    
-            
+
+
+
     #avatar.checkPose()
 
     #plotanimation.AnimPlotBones(listofjoints[0].GetBones())

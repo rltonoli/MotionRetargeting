@@ -828,7 +828,7 @@ def GetMoCapSurfaceFromTXT(path=None, highpolymesh = True, minradius = True):
     return mocapSurface
 
 
-def GetAvatarSurfaceFromCSV(path, highpolymesh = True):
+def GetAvatarSurfaceFromCSV(path, animation, highpolymesh = True):
     try:
         with open(path, "r") as file:
             data = [np.asarray(line.replace('\n', '').split(','), dtype='float') if len(line.split(','))>1 else float(line.replace('\n', '')) for line in file]
@@ -842,6 +842,8 @@ def GetAvatarSurfaceFromCSV(path, highpolymesh = True):
         else:
             point.baseposition = np.asarray(data[i],dtype='float')
     avatarSurface.avatarHipsbaseposition = np.asarray(data[i+1],dtype='float')
+    avatarSurface.NormalizeSurfaceData(hipsjoint = animation.getskeletonmap().hips)
+    GetAvatarSurfaceLocalTransform(animation, avatarSurface)
     return avatarSurface
 
 

@@ -542,46 +542,62 @@ def PlotBVH(animation):
     ani = FuncAnimation(fig, update, frames=np.arange(animation.frames), fargs=([scatters]) ,interval=1, blit=True)
     return ani
 
-def PlotPoseAndSurface(animation, surface, frame):
-    fig = plt.figure(figsize=(12,8))
-    ax = fig.add_subplot(111, projection='3d')
+def PlotPoseAndSurface(animation, surface, frame, plot2d = False):
+    if plot2d:
+        fig = plt.figure(figsize=(12,8))
+        ax = fig.add_subplot(111)
+        aux = animation.getBones(frame)
+        bones = []
+        for i in range(len(aux)):
+            bones.append(ax.plot([aux[i,0], aux[i,3]], [aux[i,1], aux[i,4]],'-o', color='black')[0])
+        surf = []
+        for triangle in surface.headmesh:
+            vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1]] for vert in triangle]
+            vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1]])
+            vertices = np.asarray(vertices)
+            surf.append(ax.plot(vertices[:,0],vertices[:,1],'-o', color='red', markersize=1, alpha = 0.5)[0])
 
-    aux = animation.getBones(frame)
-    bones = []
-    for i in range(len(aux)):
-        bones.append(ax.plot([aux[i,0], aux[i,3]], [aux[i,1], aux[i,4]], [aux[i,2], aux[i,5]],'-o', color='black')[0])
+        for triangle in surface.bodymesh:
+            vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1]] for vert in triangle]
+            vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1]])
+            vertices = np.asarray(vertices)
+            surf.append(ax.plot(vertices[:,0],vertices[:,1],'-o', color='red', markersize=1, alpha = 0.5)[0])
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        mini,maxi = np.min(aux), np.max(aux)
+        ax.set_xlim(mini,maxi)
+        ax.set_ylim(mini,maxi)
+        ax.set_axis_off()
+        plt.show()
+    else:
+        fig = plt.figure(figsize=(12,8))
+        ax = fig.add_subplot(111, projection='3d')
 
+        aux = animation.getBones(frame)
+        bones = []
+        for i in range(len(aux)):
+            bones.append(ax.plot([aux[i,0], aux[i,3]], [aux[i,1], aux[i,4]], [aux[i,2], aux[i,5]],'-o', color='black')[0])
+        surf = []
+        for triangle in surface.headmesh:
+            vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1],vert.getPosition(animation,frame)[2]] for vert in triangle]
+            vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1],triangle[0].getPosition(animation,frame)[2]])
+            vertices = np.asarray(vertices)
+            surf.append(ax.plot(vertices[:,0],vertices[:,1],vertices[:,2],'-o', color='red', markersize=1, alpha = 0.5)[0])
 
-    surf = []
-    for triangle in surface.headmesh:
-        vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1],vert.getPosition(animation,frame)[2]] for vert in triangle]
-        vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1],triangle[0].getPosition(animation,frame)[2]])
-        vertices = np.asarray(vertices)
-        surf.append(ax.plot(vertices[:,0],vertices[:,1],vertices[:,2],'-o', color='red', markersize=1, alpha = 0.5)[0])
-
-    for triangle in surface.bodymesh:
-        vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1],vert.getPosition(animation,frame)[2]] for vert in triangle]
-        vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1],triangle[0].getPosition(animation,frame)[2]])
-        vertices = np.asarray(vertices)
-        surf.append(ax.plot(vertices[:,0],vertices[:,1],vertices[:,2],'-o', color='red', markersize=1, alpha = 0.5)[0])
-
-#    vectors = []
-#    for i in range(len(dispvectors[0])):
-#        #[frame][vectorfromtriangle][p1orp2][xyz]
-#        vectors.append(ax.plot([dispvectors[0][i][0][0], dispvectors[0][i][1][0]], [dispvectors[0][i][0][1], dispvectors[0][i][1][1]], [dispvectors[0][i][0][2], dispvectors[0][i][1][2]],'-', color='red')[0])
-
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
-    mini,maxi = np.min(aux), np.max(aux)
-    ax.set_xlim(mini,maxi)
-    ax.set_ylim(mini,maxi)
-    ax.set_zlim(mini,maxi)
-    ax.set_axis_off()
-#    ani = FuncAnimation(fig, update, frames=np.arange(len(data[0,0,:])), fargs=(bones, data, scatters, listofpoints, vectors, dispvectors),interval=1,
-#                             blit=True)
-
-    plt.show()
+        for triangle in surface.bodymesh:
+            vertices = [[vert.getPosition(animation,frame)[0],vert.getPosition(animation,frame)[1],vert.getPosition(animation,frame)[2]] for vert in triangle]
+            vertices.append([triangle[0].getPosition(animation,frame)[0],triangle[0].getPosition(animation,frame)[1],triangle[0].getPosition(animation,frame)[2]])
+            vertices = np.asarray(vertices)
+            surf.append(ax.plot(vertices[:,0],vertices[:,1],vertices[:,2],'-o', color='red', markersize=1, alpha = 0.5)[0])
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+        mini,maxi = np.min(aux), np.max(aux)
+        ax.set_xlim(mini,maxi)
+        ax.set_ylim(mini,maxi)
+        ax.set_zlim(mini,maxi)
+        ax.set_axis_off()
+        plt.show()
 
 
 def CheckTargets(animation, joint, joint1, ego):
