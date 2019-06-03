@@ -51,63 +51,63 @@ class SkeletonMap:
         self.__getCompleteMapping(animation, mapfile)
         self.checkJoints()
 
-        
+
     def getJointsNoRoot(self):
         jointlist = [self.hips, self.spine, self.spine1, self.spine2, self.spine3, self.neck, self.neck1, self.head, self.larm, self.lforearm, self.lhand, self.rarm, self.rforearm, self.rhand, self.lupleg, self.llowleg, self.lfoot, self.rupleg, self.rlowleg, self.rfoot]
         return jointlist
-    
+
     def getJointsNoRootHips(self):
         jointlist = [self.spine, self.spine1, self.spine2, self.spine3, self.neck, self.neck1, self.head, self.lshoulder,self.larm, self.lforearm, self.lhand, self.rshoulder, self.rarm, self.rforearm, self.rhand, self.lupleg, self.llowleg, self.lfoot, self.rupleg, self.rlowleg, self.rfoot]
-        
+
         return jointlist
-    
+
     def getJointsLimbsHead(self):
         jointlist = [self.neck, self.neck1, self.head, self.larm, self.lforearm, self.lhand, self.rarm, self.rforearm, self.rhand, self.lupleg, self.llowleg, self.lfoot, self.rupleg, self.rlowleg, self.rfoot]
         return jointlist
 
-        
+
     def vecRForearm(self, frame):
         return self.rhand.getPosition(frame) - self.rforearm.getPosition(frame)
-    
+
     def vecLForearm(self, frame):
         return self.lhand.getPosition(frame) - self.lforearm.getPosition(frame)
-    
+
     def vecRArm(self, frame):
         return self.rforearm.getPosition(frame) - self.rarm.getPosition(frame)
-    
+
     def vecLArm(self, frame):
         return self.lforearm.getPosition(frame) - self.larm.getPosition(frame)
-    
+
     def vecRClavicle(self, frame):
         return self.rarm.getPosition(frame) - self.spine3.getPosition(frame)
-    
+
     def vecLClavicle(self, frame):
         return self.larm.getPosition(frame) - self.spine3.getPosition(frame)
-    
+
     def vecNeck(self, frame):
         return self.spine3.getPosition(frame) - self.head.getPosition(frame)
-    
+
     def vecSpine(self, frame):
         return self.spine3.getPosition(frame) - self.hips.getPosition(frame)
-    
+
     def vecLFemur(self, frame):
         return self.lupleg.getPosition(frame) - self.hips.getPosition(frame)
-    
+
     def vecRFemur(self, frame):
         return self.rupleg.getPosition(frame) - self.hips.getPosition(frame)
-        
+
     def vecLUpleg(self, frame):
         return self.llowleg.getPosition(frame) - self.lupleg.getPosition(frame)
-    
+
     def vecRUpleg(self, frame):
         return self.rlowleg.getPosition(frame) - self.rupleg.getPosition(frame)
-        
+
     def vecLLowleg(self, frame):
         return self.lfoot.getPosition(frame) - self.llowleg.getPosition(frame)
-    
+
     def vecRLowleg(self, frame):
         return self.rfoot.getPosition(frame) - self.rlowleg.getPosition(frame)
-    
+
     def checkJoints(self):
         #Note: Not all joints are being checked
         if not self.alljoints:
@@ -193,28 +193,29 @@ class SkeletonMap:
             print('Right Toe Base not found')
             flag = False
         if flag:
-            print('The mapping was successful')
+            pass
         else:
+            print('Something went wrong in skeletonmap.SkeletonMap.checkJoints()')
             return None
-    
-    
+
+
     def __getCompleteMapping(self, animation, mapfile):
         self.root = None
         #Spine
         self.hips, self.spine, self.spine1, self.spine2, self.spine3 = None, None, None, None, None
         self.head, self.neck, self.neck1 = None, None, None
-        
+
         self.lshoulder, self.rshoulder = None, None
-        
+
         #Upper limbs
         self.larm, self.lforearm, self.lhand, self.lhandmiddle, self.rarm, self.rforearm, self.rhand, self.rhandmiddle = None, None, None, None, None, None, None, None
         #Lower limbs
         self.lupleg, self.llowleg, self.lfoot, self.ltoebase, self.rupleg, self.rlowleg, self.rfoot, self.rtoebase = None, None, None, None, None, None, None, None
-        
-        
+
+
         #Not on the list:
         self.neckup, self.lforefoot, self.rforefoot, self.lhandthumb, self.rhandthumb = None, None, None, None, None
-        
+
         if mapfile:
             realpath = os.path.dirname(os.path.realpath(__file__))
             path = os.path.join(realpath, mapfile)
@@ -255,11 +256,11 @@ class SkeletonMap:
                     lForeFoot = [data[30][1]]
                     lToeBase = [data[31][1]]
             except FileNotFoundError as e:
-                print('Invalid path provided or file not found in %s.\nError: %s.' % (realpath,str(e)))    
+                print('Invalid path provided or file not found in %s.\nError: %s.' % (realpath,str(e)))
                 return None
         else:
             root,hips,spine,spine1,spine2,spine3,neck,neck1,neckup,head,rShoulder,rArm,rForeArm ,rHand,rHandThumb1 ,rHandMiddle1,lShoulder,lArm,lForeArm ,lHand,lHandThumb1,lHandMiddle1 ,rUpLeg,rLeg,rFoot,rForeFoot,rToeBase,lUpLeg,lLeg,lFoot,lForeFoot,lToeBase = std_root,std_hips,std_spine,std_spine1,std_spine2,std_spine3,std_neck,std_neck1,std_neckup,std_head ,std_rShoulder,std_rArm,std_rForeArm ,std_rHand,std_rHandThumb1 ,std_rHandMiddle1,std_lShoulder,std_lArm,std_lForeArm ,std_lHand,std_lHandThumb1,std_lHandMiddle1 ,std_rUpLeg,std_rLeg,std_rFoot,std_rForeFoot,std_rToeBase,std_lUpLeg,std_lLeg,std_lFoot,std_lForeFoot,std_lToeBase
-            
+
         for joint in animation.getlistofjoints():
             if isroot(joint.name,root):
                 self.root = joint
@@ -276,7 +277,7 @@ class SkeletonMap:
                 self.spine1 = joint
             elif isspine(joint.name, spine):
                 self.spine = joint
-                
+
             #Head
             elif ishead(joint.name, head):
                 self.head = joint
@@ -284,10 +285,10 @@ class SkeletonMap:
                 self.neck = joint
             elif isneck1(joint.name, neck1):
                 self.neck1 = joint
-                
+
             #Upper limbs
             elif isleftshoulder(joint.name, lShoulder):
-                self.lshoulder = joint 
+                self.lshoulder = joint
             elif isleftarm(joint.name, lArm):
                 self.larm = joint
             elif isleftforearm(joint.name, lForeArm):
@@ -295,15 +296,15 @@ class SkeletonMap:
             elif islefthand(joint.name, lHand):
                 self.lhand = joint
             elif isrightshoulder(joint.name, rShoulder):
-                self.rshoulder = joint  
+                self.rshoulder = joint
             elif isrightarm(joint.name, rArm):
-                self.rarm = joint  
+                self.rarm = joint
             elif isrightforearm(joint.name, rForeArm):
                 self.rforearm = joint
             elif isrighthand(joint.name, rHand):
                 self.rhand = joint
-            
-                
+
+
             #Lower limbs
             elif isleftupleg(joint.name, lUpLeg):
                 self.lupleg= joint
@@ -318,53 +319,53 @@ class SkeletonMap:
             elif isrightupleg(joint.name, rUpLeg):
                 self.rupleg = joint
             elif isrightleg(joint.name, rLeg):
-                self.rlowleg = joint  
+                self.rlowleg = joint
             elif isrightfoot(joint.name, rFoot):
                 self.rfoot = joint
             elif isrightforefoot(joint.name, rForeFoot):
                 self.rforefoot = joint
             elif isrighttoebase(joint.name, rToeBase):
                 self.rtoebase = joint
-                
+
             #Not added to list:
             elif isrighthandmiddle1(joint.name, rHandMiddle1):
                 self.rhandmiddle = joint
             elif islefthandmiddle1(joint.name, lHandMiddle1):
                 self.lhandmiddle = joint
-                
-        self.alljoints = [self.root, 
-                          self.hips, 
-                          self.spine, 
-                          self.spine1, 
-                          self.spine2, 
-                          self.spine3, 
-                          self.neck, 
+
+        self.alljoints = [self.root,
+                          self.hips,
+                          self.spine,
+                          self.spine1,
+                          self.spine2,
+                          self.spine3,
+                          self.neck,
                           self.neck1,
                           self.neckup,
                           self.head,
-                          self.lshoulder, 
+                          self.lshoulder,
                           self.larm,
                           self.lhandthumb,
                           self.lhandmiddle,
-                          self.lforearm, 
-                          self.lhand, 
-                          self.rshoulder, 
-                          self.rarm, 
+                          self.lforearm,
+                          self.lhand,
+                          self.rshoulder,
+                          self.rarm,
                           self.rhandthumb,
-                          self.rhandmiddle, 
-                          self.rforearm, 
-                          self.rhand, 
-                          self.lupleg, 
-                          self.llowleg, 
+                          self.rhandmiddle,
+                          self.rforearm,
+                          self.rhand,
+                          self.lupleg,
+                          self.llowleg,
                           self.lfoot,
                           self.lforefoot,
                           self.ltoebase,
-                          self.rupleg, 
-                          self.rlowleg, 
+                          self.rupleg,
+                          self.rlowleg,
                           self.rfoot,
                           self.rforefoot,
                           self.rtoebase]
-        
+
 
 def isroot(jointname, root=std_root):
     if any(name == jointname for name in root):
@@ -443,7 +444,7 @@ def isrightforearm(jointname, rForeArm=std_rForeArm):
         return rForeArm
     else:
         return None
-    
+
 def isrighthand(jointname, rHand=std_rHand):
     if any(name == jointname for name in rHand):
         return rHand
@@ -564,11 +565,11 @@ def isany(jointname, alljoints=std_alljoints):
     else:
         return False
 
-#TODO: Resolver    
+#TODO: Resolver
 def whichis(jointname):
     """
     Returns the method that the joint passed
-    
+
     :type jointname: str
     :param jointname: Name of the mapped joint
     """
@@ -589,10 +590,10 @@ def ishand(jointname):
 def getmatchingjoint(jointname, animation):
     """
     Get the list of names that contains jointname and search for a joint in the animation using the names on the list
-    
+
     :type jointname: str
     :param jointname: Name of the joint
-    
+
     :type animation: pyanimation.Animation
     :param animation: Animation to look for a mapped joint
     """
@@ -602,22 +603,22 @@ def getmatchingjoint(jointname, animation):
     joint = animation.getJoint(custommap[ind])
     assert joint, str.format('There is not a mapped joint in the animation that matches with the joint %s' % jointname)
     return joint
-    
-    
-    
 
-#TODO: Resolver      
+
+
+
+#TODO: Resolver
 def isamatch(jointname1, jointname2, validNames=std_validNames):
     for validnamesofONEjoint in validNames:
         if any(name == jointname1 for name in validnamesofONEjoint):
             if any(name == jointname2 for name in validnamesofONEjoint):
                 return True
     return False
-            
+
 def getIntermediateSkeleton(animation):
     #Should no be used
     print('Do not use this method, create a SkeletonMap object instead.')
-    root, hips, spine, spine1, spine2, spine3, head, larm, lforearm, lhand, rarm, rforearm, rhand = None,None,None,None,None,None,None,None,None,None,None,None,None  
+    root, hips, spine, spine1, spine2, spine3, head, larm, lforearm, lhand, rarm, rforearm, rhand = None,None,None,None,None,None,None,None,None,None,None,None,None
     for joint in animation.getlistofjoints():
         if isroot(joint.name):
             root = joint
@@ -642,7 +643,7 @@ def getIntermediateSkeleton(animation):
         elif isrightforearm(joint.name):
             rforearm = joint
         elif isrightarm(joint.name):
-            rarm = joint  
+            rarm = joint
         elif isrighthand(joint.name):
             rhand = joint
     found = 1
@@ -664,4 +665,3 @@ def getIntermediateSkeleton(animation):
 #allLimbsNames = rArmNames + rForeArmNames + rHandNames + lArmNames + lForeArmNames + lHandNames + lUpperLegNames + lLegNames + lFootNames + rUpperLegNames + rLegNames + rFootNames
 #upperLimbsNames = rArmNames + rForeArmNames + rHandNames + lArmNames + lForeArmNames + lHandNames
 #upperExtremitiesNames = rArmNames + lArmNames
-

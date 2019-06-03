@@ -209,6 +209,7 @@ class SurfacePoint:
         if self.pointtype=='mesh':
             joint = skeletonmap.getmatchingjoint(self.jointlock, animation)
             assert joint, str.format('Could not find attached joint in animation: %s' % self.jointlock)
+            assert self.calibrationLocalTransform is not None, str.format('Calibration Local Transform not computed for point %s' % self.name)
             globalPointTransform = np.dot(joint.getGlobalTransform(frame), self.calibrationLocalTransform)
             return np.dot(globalPointTransform,[0,0,0,1])[:-1]
 

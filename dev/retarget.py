@@ -20,97 +20,71 @@ import ik
 ########################################################
 
 
-def PostureInitialization(ani_ava, ani_mocap, getpositions=False, headAlign = True, spineAlign = True):
+def AlignBones(target, source, headAlign = True, spineAlign = True):
     """
-    Copy the rotation from the mocap joints to the corresponding avatar joint.
+    Align the bones of the target skeleton with the bones of the source skeleton.
 
-    ani_ava: Avatar animation
-    ani_mocap: Mocap animation
+    Parameters
+    ----------
+    target : Animation class object
+        Input target skeleton. An Animation object with one frame. The skeleton should be in the T-Pose.
+    source : Animation class object
+        Input source animation. An Animation object that the target skeleton will copy.
+    headAlign : bool, optional
+        If this is set to True, the neck bone is aligned. This can cause strange looking pose if the skeletons have very different topologies.
+    spineAlign : bool, optional
+        If this is set to True, the spine bone is aligned. This can cause strange looking pose if the skeletons have very different topologies.
     """
-    #Get mapping
-    mocapmap = ani_mocap.getskeletonmap()
-    avamap = ani_ava.getskeletonmap()
-    #
-    #Save the reference TPose
-    for joint in ani_ava.getlistofjoints():
+    #Get skeleton map
+    sourcemap = source.getskeletonmap()
+    targetmap = target.getskeletonmap()
+
+    #Save the reference TPose. The user can export the target animation with a TPose in the first frame.
+    for joint in target.getlistofjoints():
         joint.tposerot = joint.rotation[0]
         joint.tposetrans = joint.translation[0]
 
-    start=time.time()
     #Expand the number of frames of the avatar animation to match the mocap animation
-    ani_ava.expandFrames(mocapmap.root.translation.shape[0])
-    #Adapt pose each frame
+    target.expandFrames(sourcemap.root.translation.shape[0])
+
     print('Starting Posture Initialization')
-    for frame in range(ani_mocap.frames):
+    start=time.time()
+    #Adapt pose each frame
+    for frame in range(source.frames):
         if np.mod(frame+1,100) == 0:
             print('%i frames done. %s seconds.' % (int((frame+1)/100)*100,time.time()-start))
             start=time.time()
 
         #Get the Height of the root in the base position (Frame = 0)
-        #If the source animation (mocap) is not in the TPose, it will fail
+        #The source and target animation should be in the TPose
         if frame == 0:
             ground_normal = np.array([0,1,0])
-            srcHHips = np.dot(mocapmap.hips.getPosition(0), ground_normal)
-            tgtHHips = np.dot(avamap.hips.getPosition(0), ground_normal)
+            srcHHips = np.dot(sourcemap.hips.getPosition(0), ground_normal)
+            tgtHHips = np.dot(targetmap.hips.getPosition(0), ground_normal)
             ratio = tgtHHips/srcHHips
 
         #Adjust roots/hips height
-        #Eray Molla Eq 1
-        srcPosHips = mocapmap.hips.getPosition(frame)
+        srcPosHips = sourcemap.hips.getPosition(frame)
         srcGroundHips = np.asarray([srcPosHips[0], 0, srcPosHips[2]])
         tgtGroundHips = srcGroundHips*ratio
-        srcHHips = np.dot(mocapmap.hips.getPosition(frame), ground_normal)
+        srcHHips = np.dot(sourcemap.hips.getPosition(frame), ground_normal)
         tgtHHips = srcHHips*ratio
-        avamap.root.translation[frame] = [0,tgtHHips,0] + tgtGroundHips
+        targetmap.root.translation[frame] = [0,tgtHHips,0] + tgtGroundHips
 
+        #Align the bones in the first frame because the motion capture actor may not be exactly at TPose
+        #That is, the spine could be curved, the arms may not be completly extended, etc.
         if frame == 0:
-#            for joint_ava, joint_mocap in zip(avamap.getJointsLimbsHead(), mocapmap.getJointsLimbsHead()):
-#                #TODO: CHECAR SE A DIREÇÂO  NÃO É ZERO, NO CASO QUE TEM ENDSITE MAS ELE é 0,0,0
-#                #Aling vectors
-#                srcChildren = joint_mocap.getChildren()
-#                tgtChildren = joint_ava.getChildren()
-#                #Get source and target global transform and rotation matrices
-#                srcGlbTransformMat = joint_mocap.getGlobalTransform(frame)
-#                srcGlbRotationMat = mathutils.shape4ToShape3(srcGlbTransformMat)
-#                tgtGlbTransformMat = joint_ava.getGlobalTransform(frame)
-#                tgtGlbRotationMat = mathutils.shape4ToShape3(tgtGlbTransformMat)
-#                #Get source and target offset or endsite
-#                if srcChildren:
-#                    srcLclBoneDirection = mathutils.unitVector(srcChildren[0].offset)
-#                else:
-#                    srcLclBoneDirection = mathutils.unitVector(joint_mocap.endsite)
-#                if tgtChildren:
-#                    tgtLclBoneDirection = mathutils.unitVector(tgtChildren[0].offset)
-#                else:
-#                    tgtLclBoneDirection = mathutils.unitVector(joint_ava.endsite)
-#                #If the joints have only one children, assume that they are the same bone
-#                #If the bone locally point at the same direction, this is, if they represent
-#                #the same bone, perform the alignment
-#                if (len(srcChildren) <= 1 and len(tgtChildren)<=1) or mathutils.isequal(srcLclBoneDirection, tgtLclBoneDirection):
-#                    #Get vector direction
-#                    srcGlbBoneDirection = np.dot(srcGlbRotationMat,srcLclBoneDirection)
-#                    tgtGlbBoneDirection = np.dot(tgtGlbRotationMat,tgtLclBoneDirection)
-#                    #Align vectors
-#                    alignMat = mathutils.alignVectors(tgtGlbBoneDirection, srcGlbBoneDirection)
-#                    #Get new global rotation matrix
-#                    tgtNewGblRotationMat = np.dot(alignMat,tgtGlbRotationMat)
-#                    #Get new local rotation matrix
-#                    tgtParentGblRotationMat = mathutils.shape4ToShape3(joint_ava.parent.getGlobalTransform(frame))
-#                    tgtNewLclRotationMat = np.dot(tgtParentGblRotationMat.T, tgtNewGblRotationMat)
-#                    #Get new local rotation euler angles
-#                    tgtNewLclRotationEuler, warning = mathutils.eulerFromMatrix(tgtNewLclRotationMat, joint_ava.order)
-#                    joint_ava.rotation[frame] = tgtNewLclRotationEuler
-            mocapbones = []
-            avabones = []
+            #Get bones
+            srcBones, tgtBones = [], []
             if spineAlign:
-                mocapbones.append([mocapmap.hips, mocapmap.spine3])
-                avabones.append([avamap.hips, avamap.spine3])
+                srcBones.append([sourcemap.hips, sourcemap.spine3])
+                tgtBones.append([targetmap.hips, targetmap.spine3])
             if headAlign:
-                mocapbones.append([mocapmap.neck, mocapmap.head])
-                avabones.append([avamap.neck, avamap.head])
-            mocapbones = mocapbones + [[mocapmap.rarm, mocapmap.rforearm],[mocapmap.larm, mocapmap.lforearm],[mocapmap.rforearm, mocapmap.rhand],[mocapmap.lforearm, mocapmap.lhand],[mocapmap.rupleg, mocapmap.rlowleg],[mocapmap.lupleg, mocapmap.llowleg],[mocapmap.rlowleg, mocapmap.rfoot],[mocapmap.llowleg, mocapmap.lfoot]]
-            avabones = avabones + [[avamap.rarm, avamap.rforearm],[avamap.larm, avamap.lforearm],[avamap.rforearm, avamap.rhand],[avamap.lforearm, avamap.lhand],[avamap.rupleg, avamap.rlowleg],[avamap.lupleg, avamap.llowleg],[avamap.rlowleg, avamap.rfoot],[avamap.llowleg, avamap.lfoot]]
-            for mocapbone, avabone in zip(mocapbones,avabones):
+                srcBones.append([sourcemap.neck, sourcemap.head])
+                tgtBones.append([targetmap.neck, targetmap.head])
+            srcBones = srcBones + [[sourcemap.rarm, sourcemap.rforearm],[sourcemap.larm, sourcemap.lforearm],[sourcemap.rforearm, sourcemap.rhand],[sourcemap.lforearm, sourcemap.lhand],[sourcemap.rupleg, sourcemap.rlowleg],[sourcemap.lupleg, sourcemap.llowleg],[sourcemap.rlowleg, sourcemap.rfoot],[sourcemap.llowleg, sourcemap.lfoot]]
+            tgtBones = tgtBones + [[targetmap.rarm, targetmap.rforearm],[targetmap.larm, targetmap.lforearm],[targetmap.rforearm, targetmap.rhand],[targetmap.lforearm, targetmap.lhand],[targetmap.rupleg, targetmap.rlowleg],[targetmap.lupleg, targetmap.llowleg],[targetmap.rlowleg, targetmap.rfoot],[targetmap.llowleg, targetmap.lfoot]]
+            for mocapbone, avabone in zip(srcBones,tgtBones):
                 #Get source and target global transform and rotation matrices from the start of the bone
                 p0 = mocapbone[0].getPosition(0)
                 p1 = mocapbone[1].getPosition(0)
@@ -119,14 +93,14 @@ def PostureInitialization(ani_ava, ani_mocap, getpositions=False, headAlign = Tr
                 p0 = avabone[0].getPosition(0)
                 p1 = avabone[1].getPosition(0)
                 tgtDirection = mathutils.unitVector(p1-p0)
-                #Align vectors
+                #Rotation matrix to align the bones
                 alignMat = mathutils.alignVectors(tgtDirection, srcDirection)
                 #Get new global rotation matrix
                 tgtGlbTransformMat = avabone[0].getGlobalTransform(frame)
                 tgtGlbRotationMat = mathutils.shape4ToShape3(tgtGlbTransformMat)
                 tgtNewGblRotationMat = np.dot(alignMat,tgtGlbRotationMat)
                 #Get new local rotation matrix
-                if not avabone[0] == avamap.root: #Does not have a parent, transform is already local
+                if not avabone[0] == targetmap.root: #Does not have a parent, transform is already local
                     tgtParentGblRotationMat = mathutils.shape4ToShape3(avabone[0].parent.getGlobalTransform(frame))
                     tgtNewLclRotationMat = np.dot(tgtParentGblRotationMat.T, tgtNewGblRotationMat)
                 else:
@@ -134,33 +108,33 @@ def PostureInitialization(ani_ava, ani_mocap, getpositions=False, headAlign = Tr
                 #Get new local rotation euler angles
                 tgtNewLclRotationEuler, warning = mathutils.eulerFromMatrix(tgtNewLclRotationMat, avabone[0].order)
                 avabone[0].rotation[frame] = tgtNewLclRotationEuler
-
         else:
-            for joint_ava, joint_mocap in zip(avamap.getJointsNoRootHips(), mocapmap.getJointsNoRootHips()):
-                if joint_ava is not None and joint_mocap is not None:
+            #For the rest of the motion, apply the transform of the mapped source joints in the mapped target joints
+            for tgtJoint, srcJoint in zip(targetmap.getJointsNoRootHips(), sourcemap.getJointsNoRootHips()):
+                if tgtJoint is not None and srcJoint is not None:
                     previousframe = frame-1 if frame!= 0 else 0
                     #Get source and target global transform and rotation matrices
                     #Even if frame == 0 the matrices need to be recalculated
-                    srcGlbTransformMat = joint_mocap.getGlobalTransform(frame)
+                    srcGlbTransformMat = srcJoint.getGlobalTransform(frame)
                     srcGlbRotationMat = mathutils.shape4ToShape3(srcGlbTransformMat)
-                    tgtGlbTransformMat = joint_ava.getGlobalTransform(previousframe)
+                    tgtGlbTransformMat = tgtJoint.getGlobalTransform(previousframe)
                     tgtGlbRotationMat = mathutils.shape4ToShape3(tgtGlbTransformMat)
                     #Get previous source global transform and rotation matrices
-                    srcPreviousGlbTransformMat = joint_mocap.getGlobalTransform(previousframe)
+                    srcPreviousGlbTransformMat = srcJoint.getGlobalTransform(previousframe)
                     srcPreviousGlbRotationMat = mathutils.shape4ToShape3(srcPreviousGlbTransformMat)
                     #Get the transform of the source from the previous frame to the present frame
                     transform = np.dot(srcGlbRotationMat, srcPreviousGlbRotationMat.T)
                     #Apply transform
                     tgtNewGblRotationMat = np.dot(transform, tgtGlbRotationMat)
                     #Get new local rotation matrix
-                    tgtParentGblRotationMat = mathutils.shape4ToShape3(joint_ava.parent.getGlobalTransform(frame))
+                    tgtParentGblRotationMat = mathutils.shape4ToShape3(tgtJoint.parent.getGlobalTransform(frame))
                     tgtNewLclRotationMat = np.dot(tgtParentGblRotationMat.T, tgtNewGblRotationMat)
                     #Get new local rotation euler angles
-                    tgtNewLclRotationEuler, warning = mathutils.eulerFromMatrix(tgtNewLclRotationMat, joint_ava.order)
-                    joint_ava.rotation[frame] = tgtNewLclRotationEuler[:]
-
-        ani_ava.frames = ani_mocap.frames
-        ani_ava.frametime = ani_mocap.frametime
+                    tgtNewLclRotationEuler, warning = mathutils.eulerFromMatrix(tgtNewLclRotationMat, tgtJoint.order)
+                    tgtJoint.rotation[frame] = tgtNewLclRotationEuler[:]
+        #Set number of frames and duration of each frame as the source animation
+        target.frames = source.frames
+        target.frametime = source.frametime
 
 
 #def checkColisions(animation, surface):
@@ -260,11 +234,11 @@ for path in sourceanimations:
     # avatar.PlotPose(0,avatarSurface)
 
     # Initialize pose (should be done at each frame?) ########################
-    PostureInitialization(avatar, mocap, getpositions = False, headAlign = True, spineAlign = False)
-    start = time.time()
-    print('Starting avatar surface position estimation')
-    surface.AvatarSurfacePositionEstimation(avatar, avatarSurface)
-    print('Done. %s seconds.' % (time.time()-start))
+    AlignBones(avatar, mocap, getpositions = False, headAlign = True, spineAlign = False)
+    #start = time.time()
+    #print('Starting avatar surface position estimation')
+    #surface.AvatarSurfacePositionEstimation(avatar, avatarSurface)
+    #print('Done. %s seconds.' % (time.time()-start))
 
 #    avatar.PlotPose(400, avatarSurface)
 #    mocap.PlotAnimation(mocapSurface)
