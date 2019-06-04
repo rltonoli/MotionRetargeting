@@ -1,14 +1,105 @@
 ((*- extends 'article.tplx' -*))
 
-((* block author *))
-\author{Rodolfo L. Tonoli}
-((* endblock author *))
 
-((* block title *))
+((* block docclass *))
+\documentclass{vgtc}
+
+
+
+
+\ifpdf%                                % if we use pdflatex
+  \pdfoutput=1\relax                   % create PDFs from pdfLaTeX
+  \pdfcompresslevel=9                  % PDF Compression
+  \pdfoptionpdfminorversion=7          % create PDF 1.7
+  \ExecuteOptions{pdftex}
+  \usepackage{graphicx}                % allow us to embed graphics files
+  \DeclareGraphicsExtensions{.pdf,.png,.jpg,.jpeg} % for pdflatex we expect .pdf, .png, or .jpg files
+\else%                                 % else we use pure latex
+  \ExecuteOptions{dvips}
+  \usepackage{graphicx}                % allow us to embed graphics files
+  \DeclareGraphicsExtensions{.eps}     % for pure latex we expect eps files
+\fi%
+
+%% it is recomended to use ``\autoref{sec:bla}'' instead of ``Fig.~\ref{sec:bla}''
+\graphicspath{{figures/}{pictures/}{images/}{./}} % where to search for the images
+
+\usepackage{microtype}                 % use micro-typography (slightly more compact, better to read)
+\PassOptionsToPackage{warn}{textcomp}  % to address font issues with \textrightarrow
+\usepackage{textcomp}                  % use better special symbols
+\usepackage{mathptmx}                  % use matching math font
+\usepackage{times}                     % we use Times as the main font
+\renewcommand*\ttdefault{txtt}         % a nicer typewriter font
+\usepackage{cite}                      % needed to automatically sort the references
+\usepackage{tabu}                      % only used for the table example
+\usepackage{booktabs}                  % only used for the table example
+\usepackage{multirow}
+%% We encourage the use of mathptmx for consistent usage of times font
+%% throughout the proceedings. However, if you encounter conflicts
+%% with other math-related packages, you may want to disable it.
+\usepackage{color}
+
+
+
+
+
+
+
+((* endblock docclass *))
+
+
+((* block maketitle *))
+\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com}}
+\affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
 \title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
-((* endblock title *))
+\maketitle
+((* endblock maketitle *))
+
+((* block input_group *))
+((* endblock input_group *))
+
+
+((*- block data_pdf -*))
+((*- if cell.metadata.widefigure: -*))
+    ((( draw_widefigure_with_caption(output.metadata.filenames['application/pdf'], cell.metadata.caption, cell.metadata.label) )))
+((*- else -*))
+    ((*- if cell.metadata.caption: -*))
+        ((*- if cell.metadata.label: -*))
+            ((( draw_figure_with_caption(output.metadata.filenames['application/pdf'], cell.metadata.caption, cell.metadata.label) )))
+        ((*- else -*))
+            ((( draw_figure_with_caption(output.metadata.filenames['application/pdf'], cell.metadata.caption, "") )))
+        ((*- endif *))
+    ((*- else -*))
+        ((( draw_figure_with_caption(output.metadata.filenames['application/pdf'], "") )))
+    ((*- endif *))
+((*- endif *))
+((*- endblock -*))
+
+% Draw a figure using the graphicx package.
+((* macro draw_figure_with_caption(filename, caption, label) -*))
+((* set filename = filename | posix_path *))
+((*- block figure scoped -*))
+    \begin{figure}
+        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
+        \caption{((( caption )))}
+        \label{((( label )))}
+    \end{figure}
+((*- endblock figure -*))
+((*- endmacro *))
+
+% Draw a figure using the graphicx package.
+((* macro draw_widefigure_with_caption(filename, caption, label) -*))
+((* set filename = filename | posix_path *))
+((*- block figure_wide scoped -*))
+    \begin{figure*}
+        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
+        \caption{((( caption )))}
+        \label{((( label )))}
+    \end{figure*}
+((*- endblock figure_wide -*))
+((*- endmacro *))
+
 
 ((* block bibliography *))
-\bibliographystyle{plain}
+\bibliographystyle{abbrv-doi}
 \bibliography{reference}
 ((* endblock bibliography *))

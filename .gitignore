@@ -1,0 +1,9 @@
+/.ipynb_checkpoints
+/dev/__pycache__
+/dev/.ipynb_checkpoints
+/dev/MotionRetargetingPaper-1_files
+/dev/*.log
+/dev/*.aux
+/dev/*.bbl
+/dev/*.blg
+/dev/*.out
