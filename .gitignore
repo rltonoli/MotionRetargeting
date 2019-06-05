@@ -7,3 +7,5 @@
 /dev/*.bbl
 /dev/*.blg
 /dev/*.out
+/deliver/__pycache__
+/deliver/.ipynb_checkpoints

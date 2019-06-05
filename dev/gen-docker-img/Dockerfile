@@ -14,4 +14,5 @@ RUN pip install --no-cache -r environment.txt
 EXPOSE 8888
 
 # Running jupyter notebook
+CMD ["cd", "home"]
 CMD ["jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--allow-root", "--NotebookApp.token=''"]
