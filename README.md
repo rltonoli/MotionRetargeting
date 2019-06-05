@@ -5,7 +5,7 @@ Repositório do projeto desenvolvido durante a Disciplina IA369Z - Reprodutibili
 * /sampledata - Arquivos de animações em bvh  
 * /deliver - Formato final do paper. Contém o artigo no formato pdf, o notebook executável (.ipynb) e as bibliotecas desenvolvidas para a execução do mesmo.
 * /dev - Pasta de desenvolvimento. Contém notebooks em desenvolvimento, notebooks de versões anteriores, notebooks e arquivos para geração automática do artigo no formato pdf, ambiente de desenvolvimento, bibliotecas em desenvolvimento, entre outros.
-* /figures - Imagens utilizadas para a geração do artigo
+* /figures - Imagens utilizadas para a geração do artigo.
 LICENSE - condições de licença  
 
 #### Ambiente
@@ -35,4 +35,15 @@ Para executar o notebook, abra o Anaconda Prompt, acesse o diretório local do r
 *Instalação com pip* 
 
 (Não recomendado) Você precisará ter instalado o Python 3.7.3 e instalar as bibliotecas descritas na seção *Ambiente* através de `pip install numpy = 1.16.4`, `pip install matplotlib = 3.0.3` e `pip install jupyter = 1.0.0`.
+
+*Instalação com Docker*
+(Ainda não é possível visualizar as animações, apenas os gráficos do artigo)
+
+Com o Docker instalado, faça download do repositório ou clone através do comando `git clone https://github.com/rltonoli/MotionRetargeting`.
+
+Crie o container através de `docker run -p 8888:8888 -v (pasta do repositório):/home/mr rltonoli/ia369z`.
+
+Abra o browser e entre no endereço http://localhost:8888. Vá até home/mr/deliver e abra o notebook (.ipynb).
+
+(Se necessário você pode gerar a imagem local através do Dockerfile disponível em (pasta do repositório)/dev/gen-docker-img e executar o comando `docker build .\ -t myimage`)
 
