@@ -406,7 +406,7 @@
     
     
     
-\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com}}
+\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com. The code of this work and the instructions to execute it are available at https://github.com/rltonoli/MotionRetargeting.}}
 \affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
 \title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
 \maketitle
@@ -419,7 +419,7 @@
     \hypertarget{abstract}{%
 \section{Abstract}\label{abstract}}
 
-Bla bla bla
+(em construção)
 
     \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
@@ -544,17 +544,6 @@ M_{global}^{n} = \prod_{i=0}^{n} M_{local}^{i}
 
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-Preparing plot:
-Computing Bones{\ldots}
-100 frames done.
-200 frames done.
-300 frames done.
-400 frames done.
-500 frames done.
-600 frames done.
-Done!
-\end{Verbatim}
 
     \hypertarget{skeleton-mapping}{%
 \subsection{Skeleton Mapping}\label{skeleton-mapping}}
@@ -651,29 +640,6 @@ is equal to these values recombined.
     \end{equation}
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-Starting Posture Initialization
-100 frames done. 8.70 seconds.
-200 frames done. 7.43 seconds.
-300 frames done. 9.52 seconds.
-400 frames done. 5.11 seconds.
-500 frames done. 9.88 seconds.
-600 frames done. 10.07 seconds.
-Done!
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-Preparing plot:
-Computing Bones{\ldots}
-100 frames done.
-200 frames done.
-300 frames done.
-400 frames done.
-500 frames done.
-600 frames done.
-Done!
-\end{Verbatim}
 
     \hypertarget{surface-characterization}{%
 \section{Surface Characterization}\label{surface-characterization}}
@@ -715,52 +681,10 @@ joint and the transformations from every joint in the hierarchy is also
 applied to the point.
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-Preparing plot:
-Computing Surface{\ldots}
-\end{Verbatim}
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-
-        ---------------------------------------------------------------------------
-
-        AssertionError                            Traceback (most recent call last)
-
-        <ipython-input-14-2e709cdb796a> in <module>
-         54     return ani
-         55 
-    ---> 56 \_ = PlotBVHSurface(sourceAnimation,sourceSurface)
-    
-
-        <ipython-input-14-2e709cdb796a> in PlotBVHSurface(animation, surface)
-         21         vertices\_oneframe = []
-         22         for triangle in surface.headmesh + surface.bodymesh:
-    ---> 23             edge\_0 = triangle[0].getPosition(animation,frame)
-         24             edge\_1 = triangle[1].getPosition(animation,frame)
-         25             edge\_2 = triangle[2].getPosition(animation,frame)
-    
-
-        \textasciitilde{}\textbackslash{}Desktop\textbackslash{}MotionRetargeting\textbackslash{}dev\textbackslash{}surface.py in getPosition(self, animation, frame)
-        210             joint = skeletonmap.getmatchingjoint(self.jointlock, animation)
-        211             assert joint, str.format('Could not find attached joint in animation: \%s' \% self.jointlock)
-    --> 212             assert self.calibrationLocalTransform.all(), str.format('Calibration Local Transform not computed for point \%s' \% self.name)
-        213             globalPointTransform = np.dot(joint.getGlobalTransform(frame), self.calibrationLocalTransform)
-        214             return np.dot(globalPointTransform,[0,0,0,1])[:-1]
-    
-
-        AssertionError: Calibration Local Transform not computed for point headRight
-
-    \end{Verbatim}
 
     \begin{figure}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-1_files/MotionRetargetingPaper-1_13_2.png}\end{center}
-        \caption{}
-        \label{}
-    \end{figure}
-    
-
-    \begin{figure}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-1_files/MotionRetargetingPaper-1_14_0.png}\end{center}
+        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-1_files/MotionRetargetingPaper-1_16_0.png}\end{center}
         \caption{}
         \label{}
     \end{figure}
@@ -862,70 +786,10 @@ for limbs capsules, we compute the displacement vector as
 \mathbf{v} = \mathbf{-x}_{j0} + \sum_{i=1}^{n} \mathbf{s}_i
 \end{equation}
 
-COSSENOS
-
-TAU
+(em construção)
 
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-100 frames done. 37.05415320396423 seconds.
-200 frames done. 38.57540678977966 seconds.
-300 frames done. 36.319700717926025 seconds.
-400 frames done. 37.326499938964844 seconds.
-500 frames done. 28.35040545463562 seconds.
-600 frames done. 30.99491047859192 seconds.
-Done!
-\end{Verbatim}
-
-
-            \begin{tcolorbox}[breakable, boxrule=.5pt, size=fbox, pad at break*=1mm, opacityfill=0]
-\prompt{Out}{outcolor}{39}{\hspace{3.5pt}}
-\begin{Verbatim}[commandchars=\\\{\}]
-array([[ 1.95824617e+00,  1.51431879e+02, -1.42545257e+00],
-       [-2.81882290e+00,  1.46295469e+02, -3.72165332e+00],
-       [-2.22049505e+00,  1.41711300e+02, -2.78065568e+00],
-       [ 6.86468713e+00,  1.46681771e+02, -3.82499248e+00],
-       [ 6.63866394e+00,  1.41991156e+02, -2.88002111e+00],
-       [-3.97381013e-01,  1.48955237e+02, -8.01542890e-01],
-       [ 4.38913877e+00,  1.49148277e+02, -7.98438191e-01],
-       [ 2.52814435e+00,  1.39010957e+02,  1.05570754e+00],
-       [ 2.23110510e+00,  1.43525496e+02,  4.20662584e-01],
-       [ 2.03351158e+00,  1.46671635e+02, -1.74528509e-01],
-       [ 1.90636139e+00,  1.48043929e+02, -1.65817302e+01],
-       [-3.11605565e+00,  1.47734901e+02, -8.87812158e+00],
-       [ 7.02217907e+00,  1.48149312e+02, -9.05106180e+00],
-       [ 2.33791469e+00,  1.15708645e+02,  2.77855610e+00],
-       [-2.78212659e+00,  1.11179571e+02,  3.47673579e+00],
-       [ 7.59058080e+00,  1.11460814e+02,  3.51896813e+00],
-       [ 2.47053952e+00,  1.06931739e+02,  4.21714783e+00],
-       [ 1.82398405e-02,  9.57750210e+01,  4.77758201e+00],
-       [ 5.00788379e+00,  9.58553698e+01,  4.84068652e+00],
-       [ 2.70856119e+00,  9.35856573e+01, -1.03931548e+01],
-       [-5.03238852e+00,  9.57793503e+01, -3.32990512e-01],
-       [ 1.01454312e+01,  9.59652674e+01, -4.53048712e-01],
-       [ 4.26924639e+01,  1.22854779e+02, -4.17720395e+00],
-       [ 1.86414697e+01,  1.23743222e+02, -7.84384488e+00],
-       [-1.42481811e+01,  3.18096833e+01, -7.86362476e+00],
-       [-1.33948906e+01,  6.72910571e+01, -4.28438000e+00],
-       [ 9.49221512e+00,  3.01292512e+01, -7.99556077e+00],
-       [ 7.02590242e+00,  6.62089048e+01, -4.56816643e+00]])
-\end{Verbatim}
-\end{tcolorbox}
-        
-
-            \begin{tcolorbox}[breakable, boxrule=.5pt, size=fbox, pad at break*=1mm, opacityfill=0]
-\prompt{Out}{outcolor}{53}{\hspace{3.5pt}}
-\begin{Verbatim}[commandchars=\\\{\}]
-array([0.00139762, 0.11825547, 0.13162839, 0.00134696, 0.00137559,
-       0.00148639, 0.00135538, 0.00491221, 0.05536959, 0.00143716,
-       0.00147203, 0.10882928, 0.00134097, 0.00151919, 0.0207191 ,
-       0.00132756, 0.00137974, 0.00133047, 0.00123021, 0.00138492,
-       0.12555005, 0.00117715, 0.03371139, 0.11761563, 0.04584559,
-       0.09084906, 0.04752858, 0.07862432])
-\end{Verbatim}
-\end{tcolorbox}
-        
 
     \begin{figure}
         \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-1_files/MotionRetargetingPaper-1_22_0.png}\end{center}
@@ -936,17 +800,25 @@ array([0.00139762, 0.11825547, 0.13162839, 0.00134696, 0.00137559,
     \hypertarget{pose-adaptation}{%
 \section{Pose Adaptation}\label{pose-adaptation}}
 
+(Em construção)
+
 \hypertarget{inverse-kinematics}{%
 \subsection{Inverse Kinematics}\label{inverse-kinematics}}
 
     \hypertarget{results}{%
 \section{Results}\label{results}}
 
+(Em construção)
+
     \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
 
+(Em construção)
+
     \hypertarget{future-works}{%
 \section{Future Works}\label{future-works}}
+
+(Em construção)
 
 
 

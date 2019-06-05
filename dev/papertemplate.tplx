@@ -48,7 +48,7 @@
 
 
 ((* block maketitle *))
-\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com}}
+\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com. The code of this work and the instructions to execute it are available at https://github.com/rltonoli/MotionRetargeting.}}
 \affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
 \title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
 \maketitle
