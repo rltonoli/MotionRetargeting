@@ -86,32 +86,6 @@ class CoordFrame:
         self.proxi = [] #debbug importance
 
 
-def importanceCalc(dispvector, normal):
-        """
-        Compute the importance factor for a given mesh component
-
-        Parameters
-        ----------
-        dispvector : numpy array
-                    Displacement vector. The vector from the component's reference point to the joint.
-
-        normal : numpy array
-                Component's normal.
-        """
-        epsilon = 0.01
-        normdispvector = np.linalg.norm(dispvector)
-        if normdispvector <= epsilon:
-            proximity = 1/epsilon
-        else:
-            proximity = 1/normdispvector
-        normal_unit = normal/np.linalg.norm(normal)
-        dispvector_unit = dispvector/normdispvector
-        orthogonality = np.clip(np.dot(normal_unit, dispvector_unit), -1.0, 1.0)
-        if orthogonality < epsilon:
-            orthogonality = epsilon
-        orthogonality = np.abs(orthogonality)
-        return orthogonality*proximity, orthogonality, proximity
-
 def getVectors(animation, frame):
         """
         Get vectors to calculate the kinematic path
@@ -145,6 +119,54 @@ def getVectors(animation, frame):
 
         return lvec_fore, rvec_fore, lvec_arm, rvec_arm, lvec_clavicle, rvec_clavicle, vec_neck, vec_spine, lvec_femur, rvec_femur, lvec_upleg, rvec_upleg, lvec_lowleg, rvec_lowleg
 
+
+def getJointsPositions(animation, frame):
+    skmap = animation.getskeletonmap()
+    jointlist = skmap.getJointsNoRoot()
+    positions = []
+    for joint in jointlist:
+        if joint:
+            positions.append(joint.getPosition(frame))
+        else:
+            positions.append(None)
+    #pos_hips, pos_spine, pos_spine1, pos_spine2, pos_spine3, pos_neck, pos_neck1, pos_head, pos_lshoulder,pos_larm, pos_lforearm, pos_lhand, pos_rshoulder, pos_rarm, pos_rforearm, pos_rhand, pos_lupleg, pos_llowleg, pos_lfoot, pos_rupleg, pos_rlowleg, pos_rfoot
+    return positions
+
+def getMeshPositions(animation, surface, frame):
+    mesh = [[triangle[0].getPosition(animation, frame) ,triangle[1].getPosition(animation, frame),triangle[2].getPosition(animation, frame)] for triangle in surface.headmesh+surface.bodymesh]
+    return mesh
+
+def importanceCalc(dispvector, normal, handthick = 3.5):
+    """
+    Computes the importance factor for the surface mesh component with normal = normal from the
+    joint with displacement vector = dispvector. We consider the hand thickness of the motion
+    capture system: you can estimate it by asking the MoCap performer to put both hands close
+    to each other (like praying), calculating the distance from each joint and dividing by 2.
+    You can also set it to zero.
+    You can change the handling of negative values equation to the one proposed by Eray Molla
+    (or your own) to compare results.
+    """
+    epsilon = 0.01
+    #Proximity importance calculation (considering hand thickness colected from the motion capture system)
+    normdispvector = np.linalg.norm(dispvector)-handthick
+    #Handling numerical instability
+    if normdispvector <= epsilon:
+        proximity = 1/epsilon
+    else:
+        proximity = 1/normdispvector
+    normal_unit = normal/np.linalg.norm(normal)
+    dispvector_unit = dispvector/normdispvector
+    #Orthogonality importance calculation
+    #Calculating cosine
+    orthogonality = np.clip(np.dot(normal_unit, dispvector_unit), -1.0, 1.0)
+    #Handling negative values
+    orthogonality = (orthogonality+1)/2
+    #Handling numerical instability
+    if orthogonality < epsilon:
+        orthogonality = epsilon
+    orthogonality = np.abs(orthogonality)
+    return orthogonality*proximity, orthogonality, proximity
+
 #def getPosition(animation, frame):
 #    """
 #    Get positions in thecurrent frame for mapped joints
@@ -162,7 +184,7 @@ def getVectors(animation, frame):
 #        joint.getPosition(frame)
 
 
-def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
+def DenormEgoLimb(joint, animation, surface, frame, vectors, jointpositions, egocoord, index):
         """
         Denormalize egocentric coordinates for the Limbs
         """
@@ -173,11 +195,12 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         assert vectors is not None
         assert index is not None
         lvec_fore, rvec_fore, lvec_arm, rvec_arm, lvec_clavicle, rvec_clavicle, vec_neck, vec_spine, lvec_femur, rvec_femur, lvec_upleg, rvec_upleg, lvec_lowleg, rvec_lowleg = vectors
+        p_hips, p_spine, p_spine1, p_spine2, p_spine3, p_neck, p_neck1, p_head, p_lshoulder,p_larm, p_lforearm, p_lhand, p_rshoulder, p_rarm, p_rforearm, p_rhand, p_lupleg, p_llowleg, p_lfoot, p_rupleg, p_rlowleg, p_rfoot = jointpositions
         if joint == animation.getskeletonmap().rhand:
             #Right hand in respect to
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_arm, lvec_clavicle, rvec_clavicle, rvec_arm, rvec_fore]
@@ -186,8 +209,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_clavicle, rvec_clavicle, rvec_arm, rvec_fore]
@@ -196,8 +219,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_upleg, rvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore]
@@ -206,8 +229,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore]
@@ -216,8 +239,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_upleg, lvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore]
@@ -227,8 +250,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore]
@@ -239,8 +262,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().lhand:
             #Left hand in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_arm, rvec_clavicle, lvec_clavicle, lvec_arm, lvec_fore]
@@ -249,8 +272,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_clavicle, lvec_clavicle, lvec_arm, lvec_fore]
@@ -259,8 +282,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_upleg, rvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore]
@@ -269,8 +292,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore]
@@ -279,8 +302,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_upleg, lvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore]
@@ -291,8 +314,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore]
@@ -303,8 +326,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().rforearm:
             #Right elbow in respect to
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_arm, lvec_clavicle, rvec_clavicle, rvec_arm]
@@ -313,8 +336,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_clavicle, rvec_clavicle, rvec_arm]
@@ -323,8 +346,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_upleg, rvec_femur, vec_spine, rvec_clavicle, rvec_arm]
@@ -333,8 +356,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_femur, vec_spine, rvec_clavicle, rvec_arm]
@@ -343,8 +366,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_upleg, lvec_femur, vec_spine, rvec_clavicle, rvec_arm]
@@ -353,8 +376,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_femur, vec_spine, rvec_clavicle, rvec_arm]
@@ -365,8 +388,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().lforearm:
             #Left elbow in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_arm, rvec_clavicle, lvec_clavicle, lvec_arm]
@@ -375,8 +398,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_clavicle, lvec_clavicle, lvec_arm]
@@ -385,8 +408,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_upleg, rvec_femur, vec_spine, lvec_clavicle, lvec_arm]
@@ -395,8 +418,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [rvec_femur, vec_spine, lvec_clavicle, lvec_arm]
@@ -405,8 +428,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_upleg, lvec_femur, vec_spine, lvec_clavicle, lvec_arm]
@@ -415,8 +438,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = [lvec_femur, vec_spine, lvec_clavicle, lvec_arm]
@@ -427,8 +450,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().rfoot:
             #Right foot in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -437,8 +460,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -447,8 +470,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT FOREARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -457,8 +480,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -467,8 +490,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -477,8 +500,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_femur, rvec_femur, rvec_lowleg, rvec_upleg])
@@ -488,8 +511,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().lfoot:
             #Left foot in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -498,8 +521,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -508,8 +531,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT FOREARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -518,8 +541,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -528,8 +551,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -538,8 +561,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_femur, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -549,8 +572,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().rlowleg:
             #Right knee in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -559,8 +582,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -569,8 +592,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT FOREARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -579,8 +602,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -589,8 +612,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, rvec_femur, rvec_upleg])
@@ -599,8 +622,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_femur, rvec_femur, rvec_lowleg])
@@ -610,8 +633,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
         elif joint == animation.getskeletonmap().llowleg:
             #Left foot in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -620,8 +643,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #RIGHT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -630,8 +653,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT FOREARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -640,8 +663,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT ARM LIMB
             index += 1
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -650,8 +673,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT LOW LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, lvec_femur, lvec_upleg])
@@ -660,8 +683,8 @@ def DenormEgoLimb(joint, animation, surface, frame, vectors, egocoord, index):
             yield de_displacement, de_refpoint, tau, normal
             #LEFT UP LEG LIMB
             index += 1
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightRight').radius
             de_refpoint, normal = mathutils.capsuleCartesian(egocoord.refpoint[index], p0, p1, r)
             path = np.asarray([- lvec_femur, lvec_femur, lvec_upleg])
@@ -763,16 +786,16 @@ def importanceCalcLimb(vectors, limbname, dispvector, normal):
         importance, orthogonality, proximity = importanceCalc(dispvector, normal)
         return importance, orthogonality, proximity
 
-
-def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface = None):
+def pathnormCalcLimb(joint, animation, mesh, frame, vectors, jointpositions, surface):
         lvec_fore, rvec_fore, lvec_arm, rvec_arm, lvec_clavicle, rvec_clavicle, vec_neck, vec_spine, lvec_femur, rvec_femur, lvec_upleg, rvec_upleg, lvec_lowleg, rvec_lowleg = vectors
+        p_hips, p_spine, p_spine1, p_spine2, p_spine3, p_neck, p_neck1, p_head, p_lshoulder,p_larm, p_lforearm, p_lhand, p_rshoulder, p_rarm, p_rforearm, p_rhand, p_lupleg, p_llowleg, p_lfoot, p_rupleg, p_rlowleg, p_rfoot = jointpositions
 #            TODO: Fazer para cada junta para cada um dos membros
         jointPosition = joint.getPosition(frame)
         if joint == animation.getskeletonmap().rhand:
             #Right hand in respect to
             #LEFT FOREARM LIMB
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p1 = p_lhand
+            p0 = p_lforearm
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, rvec_clavicle, rvec_arm, rvec_fore])
@@ -782,7 +805,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
+            p0 = p_larm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - lvec_clavicle, rvec_clavicle, rvec_arm, rvec_fore])
@@ -791,8 +814,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #RIGHT LOW LEG LIMB
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p1 = p_rfoot
+            p0 = p_rlowleg
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_upleg, - rvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore])
@@ -802,7 +825,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement, cos, tau, 'rlowleg', normal, cylindric, refpoint
             #RIGHT UP LEG LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
+            p0 = p_rupleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore])
@@ -811,8 +834,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rupleg', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p1 = p_lfoot
+            p0 = p_llowleg
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_upleg, - lvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore])
@@ -822,7 +845,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement,cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
+            p0 = p_lupleg
             r = surface.getPoint('thightLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_femur, vec_spine, rvec_clavicle, rvec_arm, rvec_fore])
@@ -834,8 +857,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().lhand:
             #Left hand in respect to
             #RIGHT FOREARM LIMB
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p1 = p_rhand
+            p0 = p_rforearm
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, lvec_clavicle, lvec_arm, lvec_fore])
@@ -845,7 +868,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement, cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
+            p0 = p_rarm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, lvec_clavicle, lvec_arm, lvec_fore])
@@ -854,8 +877,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rarm', normal, cylindric, refpoint
             #RIGHT LOW LEG LIMB
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p1 = p_rfoot
+            p0 = p_rlowleg
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_upleg, - rvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore])
@@ -865,7 +888,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement, cos, tau, 'rlowleg', normal, cylindric, refpoint
             #RIGHT UP LEG LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
+            p0 = p_rupleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore])
@@ -874,8 +897,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rupleg', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p1 = p_lfoot
+            p0 = p_llowleg
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - lvec_upleg, - lvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore])
@@ -885,7 +908,7 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
             p1 = p0[:]
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
+            p0 = p_lupleg
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             r = surface.getPoint('thightLeft').radius
             path = np.asarray([- lvec_femur, vec_spine, lvec_clavicle, lvec_arm, lvec_fore])
@@ -896,8 +919,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().rforearm:
             #Right elbow in respect to
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, rvec_clavicle, rvec_arm])
@@ -906,8 +929,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_clavicle, rvec_clavicle, rvec_arm])
@@ -916,8 +939,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #RIGHT LOW LEG LIMB
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_upleg, - rvec_femur , vec_spine , rvec_clavicle , rvec_arm])
@@ -926,8 +949,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rlowleg', normal, cylindric, refpoint
             #RIGHT UP LEG LIMB
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, vec_spine, rvec_clavicle, rvec_arm])
@@ -936,8 +959,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rupleg', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_upleg, - lvec_femur, vec_spine, rvec_clavicle, rvec_arm])
@@ -946,8 +969,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_femur, vec_spine, rvec_clavicle, rvec_arm])
@@ -958,8 +981,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().lforearm:
             #Left elbow in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, lvec_clavicle, lvec_arm])
@@ -968,8 +991,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement,cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, lvec_clavicle, lvec_arm])
@@ -978,8 +1001,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rarm', normal, cylindric, refpoint
             #RIGHT LOW LEG LIMB
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_upleg, - rvec_femur, vec_spine, lvec_clavicle, lvec_arm])
@@ -988,8 +1011,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rlowleg', normal, cylindric, refpoint
             #RIGHT UP LEG LIMB
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, vec_spine, lvec_clavicle, lvec_arm])
@@ -998,8 +1021,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rupleg', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, vec_spine, lvec_clavicle, lvec_arm])
@@ -1008,8 +1031,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_femur, vec_spine, lvec_clavicle, lvec_arm])
@@ -1020,8 +1043,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().rfoot:
             #Right foot in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -1030,18 +1053,18 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement,cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
-            vec_displacement = -(refpoint - animation.getskeletonmap().rarm.getPosition(frame)) + path.sum(axis=0)
+            vec_displacement = -(refpoint - p0) + path.sum(axis=0)
             cos = np.asarray([mathutils.cosBetween(vec_displacement, path[i]) for i in range(len(path))])
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rfore', normal, cylindric, refpoint
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -1050,8 +1073,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -1060,8 +1083,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, rvec_femur, rvec_upleg, rvec_lowleg])
@@ -1070,8 +1093,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_femur, rvec_femur, rvec_lowleg, rvec_upleg])
@@ -1082,8 +1105,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().lfoot:
             #Left foot in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -1092,18 +1115,18 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement,cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
-            vec_displacement = -(refpoint - animation.getskeletonmap().rarm.getPosition(frame)) + path.sum(axis=0)
+            vec_displacement = -(refpoint - p0) + path.sum(axis=0)
             cos = np.asarray([mathutils.cosBetween(vec_displacement, path[i]) for i in range(len(path))])
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rfore', normal, cylindric, refpoint
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -1112,8 +1135,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -1122,8 +1145,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #RIGHT LOW LEG LIMB
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - rvec_upleg,- rvec_femur, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -1132,8 +1155,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #RIGHT UP LEG LIMB
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, lvec_femur, lvec_upleg, lvec_lowleg])
@@ -1144,8 +1167,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().rlowleg:
             #Right knee in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -1154,18 +1177,18 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement,cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
-            vec_displacement = -(refpoint - animation.getskeletonmap().rarm.getPosition(frame)) + path.sum(axis=0)
+            vec_displacement = -(refpoint - p0) + path.sum(axis=0)
             cos = np.asarray([mathutils.cosBetween(vec_displacement, path[i]) for i in range(len(path))])
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rfore', normal, cylindric, refpoint
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -1174,8 +1197,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_clavicle, - vec_spine, rvec_femur, rvec_upleg])
@@ -1184,8 +1207,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p0 = animation.getskeletonmap().llowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().lfoot.getPosition(frame)
+            p0 = p_llowleg
+            p1 = p_lfoot
             r = surface.getPoint('shinLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - lvec_upleg,- lvec_femur, rvec_femur, rvec_upleg])
@@ -1194,8 +1217,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
-            p0 = animation.getskeletonmap().lupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().llowleg.getPosition(frame)
+            p0 = p_lupleg
+            p1 = p_llowleg
             r = surface.getPoint('thightLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_femur, rvec_femur, rvec_upleg])
@@ -1206,8 +1229,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
         elif joint == animation.getskeletonmap().llowleg:
             #Left knee in respect to
             #RIGHT FOREARM LIMB
-            p0 = animation.getskeletonmap().rforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().rhand.getPosition(frame)
+            p0 = p_rforearm
+            p1 = p_rhand
             r = surface.getPoint('foreRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_arm, - rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -1216,18 +1239,18 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement,cos, tau, 'rfore', normal, cylindric, refpoint
             #RIGHT ARM LIMB
-            p0 = animation.getskeletonmap().rarm.getPosition(frame)
-            p1 = animation.getskeletonmap().rforearm.getPosition(frame)
+            p0 = p_rarm
+            p1 = p_rforearm
             r = surface.getPoint('armRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
-            vec_displacement = -(refpoint - animation.getskeletonmap().rarm.getPosition(frame)) + path.sum(axis=0)
+            vec_displacement = -(refpoint - p0) + path.sum(axis=0)
             cos = np.asarray([mathutils.cosBetween(vec_displacement, path[i]) for i in range(len(path))])
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'rfore', normal, cylindric, refpoint
             #LEFT FOREARM LIMB
-            p0 = animation.getskeletonmap().lforearm.getPosition(frame)
-            p1 = animation.getskeletonmap().lhand.getPosition(frame)
+            p0 = p_lforearm
+            p1 = p_lhand
             r = surface.getPoint('foreLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_arm, - lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -1236,8 +1259,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'lfore', normal, cylindric, refpoint
             #LEFT ARM LIMB
-            p0 = animation.getskeletonmap().larm.getPosition(frame)
-            p1 = animation.getskeletonmap().lforearm.getPosition(frame)
+            p0 = p_larm
+            p1 = p_lforearm
             r = surface.getPoint('armLeft').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- lvec_clavicle, - vec_spine, lvec_femur, lvec_upleg])
@@ -1246,8 +1269,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'larm', normal, cylindric, refpoint
             #LEFT LOW LEG LIMB
-            p0 = animation.getskeletonmap().rlowleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rfoot.getPosition(frame)
+            p0 = p_rlowleg
+            p1 = p_rfoot
             r = surface.getPoint('shinRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([ - rvec_upleg,- rvec_femur, lvec_femur, lvec_upleg])
@@ -1256,8 +1279,8 @@ def pathnormCalcLimb(joint, animation, mesh, frame, refpoint, vectors, surface =
             tau = (np.linalg.norm(path, axis = 1)*cos).sum()
             yield vec_displacement, cos, tau, 'llowleg', normal, cylindric, refpoint
             #LEFT UP LEG LIMB
-            p0 = animation.getskeletonmap().rupleg.getPosition(frame)
-            p1 = animation.getskeletonmap().rlowleg.getPosition(frame)
+            p0 = p_rupleg
+            p1 = p_rlowleg
             r = surface.getPoint('thightRight').radius
             cylindric, refpoint, normal = mathutils.capsuleCollision(jointPosition,p0,p1,r)
             path = np.asarray([- rvec_femur, lvec_femur, lvec_upleg])
@@ -1279,6 +1302,7 @@ def AdjustExtremityOrientation(animation, surface, ego, sourceanim):
     print('Adjusting extremities orientation')
     for frame in range(animation.frames):
         vectors = getVectors(animation, frame)
+        jointpositions = getJointsPositions(animation, frame)
         lvec_fore, rvec_fore, lvec_arm, rvec_arm, lvec_clavicle, rvec_clavicle, vec_neck, vec_spine, lvec_femur, rvec_femur, lvec_upleg, rvec_upleg, lvec_lowleg, rvec_lowleg = vectors
         if np.mod(frame+1,100) == 0:
             print('%i frames done. %s seconds.' % (int((frame+1)/100)*100,time.time()-start))
@@ -1313,15 +1337,15 @@ def AdjustExtremityOrientation(animation, surface, ego, sourceanim):
 #                if frame==170:
 #                    print(newJointSurfaceNormals[-1])
 
-            for values in DenormEgoLimb(joint, animation, surface, frame, vectors, ego, i+1):
-                _, _, _, componentSurfaceNormal = values
-                i = i+1
-                #Get the axis of rotation to align the component surface normal
-                axis = np.cross(componentSurfaceNormal,currentJointSurfaceNormal)
-                axis_norm = axis/np.linalg.norm(axis)
-                #Rotate the component surface normal and get a joint surface normal regarding that component
-                matrix = mathutils.matrixRotation(ego.angle[i]*180/np.pi, axis_norm[0],axis_norm[1],axis_norm[2], shape=3)
-                newJointSurfaceNormals.append(np.dot(matrix, componentSurfaceNormal))
+            # for values in DenormEgoLimb(joint, animation, surface, frame, vectors, jointpositions, ego, i+1):
+            #     _, _, _, componentSurfaceNormal = values
+            #     i = i+1
+            #     #Get the axis of rotation to align the component surface normal
+            #     axis = np.cross(componentSurfaceNormal,currentJointSurfaceNormal)
+            #     axis_norm = axis/np.linalg.norm(axis)
+            #     #Rotate the component surface normal and get a joint surface normal regarding that component
+            #     matrix = mathutils.matrixRotation(ego.angle[i]*180/np.pi, axis_norm[0],axis_norm[1],axis_norm[2], shape=3)
+            #     newJointSurfaceNormals.append(np.dot(matrix, componentSurfaceNormal))
             if joint == rfoot or joint == lfoot:
                 #Handle foot contact
                 componentSurfaceNormal = [0,1,0]
@@ -1337,9 +1361,41 @@ def AdjustExtremityOrientation(animation, surface, ego, sourceanim):
 #                print((np.asarray(newJointSurfaceNormals)*ego.importance[:,None]).sum(axis=0))
 
             #Get the mean of the new joint surface  normals
-            newJointSurfaceNormal = (np.asarray(newJointSurfaceNormals)*ego.importance[:,None]).sum(axis=0)
+            normals = np.asarray(newJointSurfaceNormals)
+            importance = ego.importance[:len(normals),None]/ego.importance[:len(normals),None].sum()
+            newJointSurfaceNormal = (normals*importance).sum(axis=0)
             #Get the matrix to rotate the current joint surface normal to the new one
             matrix = mathutils.alignVectors(currentJointSurfaceNormal, newJointSurfaceNormal)
+            #Apply this rotation to the joint:
+            #Get global rotation matrix
+            glbRotationMat = mathutils.shape4ToShape3(joint.getGlobalTransform(frame))
+            #Rotate joint
+            newGblRotationMat = np.dot(matrix, glbRotationMat)
+            #Get new local rotation matrix
+            parentGblRotationMat = mathutils.shape4ToShape3(joint.parent.getGlobalTransform(frame))
+            newLclRotationMat = np.dot(parentGblRotationMat.T, newGblRotationMat)
+            #Get new local rotation euler angles
+            newAngle, warning = mathutils.eulerFromMatrix(newLclRotationMat, joint.order)
+            joint.rotation[frame] = newAngle[:]
+
+
+
+def AdjustExtremityOrientation2(animation, sourceanim):
+#    TODO: NOT WORKING
+    #O calculo da superficie parece estar OK, então acredito que o erro esteja aqui
+    lhand, rhand = animation.getskeletonmap().lhand, animation.getskeletonmap().rhand
+    lfoot, rfoot = animation.getskeletonmap().lfoot, animation.getskeletonmap().rfoot
+    srclhand, srcrhand = sourceanim.getskeletonmap().lhand, sourceanim.getskeletonmap().rhand
+    start=time.time()
+    print('Adjusting extremities orientation')
+    for frame in range(animation.frames):
+        if np.mod(frame+1,100) == 0:
+            print('%i frames done. %s seconds.' % (int((frame+1)/100)*100,time.time()-start))
+            start=time.time()
+        for joint, srcjoint in zip([rhand, lhand], [srcrhand, srclhand]):
+            srcNormal = extremityNormal(sourceanim, srcjoint, frame)
+            currentNormal = extremityNormal(animation, joint, frame)
+            matrix = mathutils.alignVectors(currentNormal, srcNormal)
             #Apply this rotation to the joint:
             #Get global rotation matrix
             glbRotationMat = mathutils.shape4ToShape3(joint.getGlobalTransform(frame))
