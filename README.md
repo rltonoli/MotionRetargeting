@@ -19,7 +19,7 @@ Versões antigas do matplotlib podem apresentar erros durante a visualização d
 
 #### Instruções para execução
 
-##### *Instalação com Anaconda* 
+##### *Instalação com Anaconda*
 
 Recomenda-se a instalação do [Anaconda](https://www.anaconda.com/distribution/) para a criação de um novo ambiente a execução do notebook.
 
@@ -32,7 +32,7 @@ Para executar o notebook, abra o Anaconda Prompt, acesse o diretório local do r
 (Uma cópia do ambiente de desenvolvimento está disponível em (repositório)/dev/mrenv.yml. Para instalar a cópia exata do ambiente abra o Anaconda Prompt, acesse a pasta /dev o diretório local do repositório clonado (repositório)/dev e insira o comando `conda env create -f mrenv.yml`. Acesse o ambiente criado através de `conda activate mrpy3`. Lembre de voltar para a pasta do repositório antes de ativar o jupyter notebook).
 
 
-##### *Instalação com pip* 
+##### *Instalação com pip*
 
 (Não recomendado) Você precisará ter instalado o Python 3.7.3 e instalar as bibliotecas descritas na seção *Ambiente* através de `pip install numpy = 1.16.4`, `pip install matplotlib = 3.0.3` e `pip install jupyter = 1.0.0`.
 
@@ -47,3 +47,13 @@ Abra o browser e entre no endereço http://localhost:8888. Vá até home/mr/deli
 
 (Se necessário você pode gerar a imagem local através do Dockerfile disponível em (pasta do repositório)/dev/gen-docker-img e executar o comando `docker build .\ -t myimage`)
 
+
+#### Dados
+
+Além das disponibilizadas no diretório "\\data", você pode encontrar mais animações gravadas através de captura de movimentos no repositório do [OSF](https://osf.io/qm7r4/).
+
+AVISO: OS DADOS DISPONÍVEIS NO OSF *NÃO* ESTÁ DISPONÍVEL SOB A MESMA LICENÇA QUE OS DADOS, CÓDIGOS E ARQUIVOS DESTE REPOSITÓRIO NO GITHUB. CONSULTE O ENDEREÇO DO RESPOSITÓRIO NO OSF PARA CHECAR A LICENÇA.
+
+#### Erros conhecidos
+
+* Versões anteriores a Python 3.6 acusará erro de diretório na tentativa de abrir os arquivos através do comando open() (visitar [PEP 519](https://docs.python.org/3/whatsnew/3.6.html) para maiores informações). Substituir as linhas Path("../diretorio/arquivo.txt") por '..\\diretorio\\arquivo.txt' de acordo com o padrão de diretório do sistema operacional.
