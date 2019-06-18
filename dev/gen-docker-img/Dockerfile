@@ -4,15 +4,19 @@ FROM python:3.7
 # Updating repository sources
 RUN apt-get update
 
+#Working directory
+WORKDIR /paper
+
 # Copying requirements.txt file
 COPY environment.txt environment.txt
+COPY ../.. .
 
-# pip install 
+# pip install
 RUN pip install --no-cache -r environment.txt
 
 # Exposing ports
 EXPOSE 8888
 
 # Running jupyter notebook
-CMD ["cd", "home"]
+#CMD ["cd", "home"]
 CMD ["jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--allow-root", "--NotebookApp.token=''"]

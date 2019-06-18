@@ -1,19 +1,11 @@
 
-% Default to the notebook output style
-
     
-
-
-% Inherit from the specified cell style.
 
 
 
 
     
-\documentclass{article}
-
-
-
+\documentclass{vgtc}
 
   \pdfoutput=1\relax                   % create PDFs from pdfLaTeX
   \pdfcompresslevel=9                  % PDF Compression
@@ -37,10 +29,13 @@
 \usepackage{multirow}
 \usepackage{caption}
 \usepackage{color}
-
-
+\captionsetup{labelformat=default}
 
     
+    \usepackage[breakable]{tcolorbox}
+    \tcbset{nobeforeafter} % prevents tcolorboxes being placing in paragraphs
+    \usepackage{float}
+    \floatplacement{figure}{H} % forces figures to be placed at the correct location
     
     \usepackage[T1]{fontenc}
     % Nicer default font (+ math font) than Computer Modern for most use cases
@@ -96,7 +91,6 @@
     \usepackage{mathrsfs}
     
 
-    
     
     % Colors for the hyperref package
     \definecolor{urlcolor}{rgb}{0,.145,.698}
@@ -183,9 +177,7 @@
     
     
     
-
-    % Pygments definitions
-    
+% Pygments definitions
 \makeatletter
 \def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
     \let\PY@ul=\relax \let\PY@tc=\relax%
@@ -287,11 +279,94 @@
 \makeatother
 
 
+    % For linebreaks inside Verbatim environment from package fancyvrb. 
+    \makeatletter
+        \newbox\Wrappedcontinuationbox 
+        \newbox\Wrappedvisiblespacebox 
+        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}} 
+        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}} 
+        \newcommand*\Wrappedcontinuationindent {3ex } 
+        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox} 
+        % Take advantage of the already applied Pygments mark-up to insert 
+        % potential linebreaks for TeX processing. 
+        %        {, <, #, %, $, ' and ": go to next line. 
+        %        _, }, ^, &, >, - and ~: stay at end of broken line. 
+        % Use of \textquotesingle for straight quote. 
+        \newcommand*\Wrappedbreaksatspecials {% 
+            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}% 
+            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}% 
+            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}% 
+            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}% 
+            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}% 
+            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}% 
+            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}% 
+            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}% 
+            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}% 
+            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}% 
+            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}% 
+            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}% 
+            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}% 
+            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}% 
+        } 
+        % Some characters . , ; ? ! / are not pygmentized. 
+        % This macro makes them "active" and they will insert potential linebreaks 
+        \newcommand*\Wrappedbreaksatpunct {% 
+            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}% 
+            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}% 
+            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}% 
+            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}% 
+            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}% 
+            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}% 
+            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}% 
+            \catcode`\.\active
+            \catcode`\,\active 
+            \catcode`\;\active
+            \catcode`\:\active
+            \catcode`\?\active
+            \catcode`\!\active
+            \catcode`\/\active 
+            \lccode`\~`\~ 	
+        }
+    \makeatother
+
+    \let\OriginalVerbatim=\Verbatim
+    \makeatletter
+    \renewcommand{\Verbatim}[1][1]{%
+        %\parskip\z@skip
+        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
+        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
+        \def\FancyVerbFormatLine ##1{\hsize\linewidth
+            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+        }%
+        % If the linebreak is at a space, the latter will be displayed as visible
+        % space at end of first line, and a continuation symbol starts next line.
+        % Stretch/shrink are however usually zero for typewriter font.
+        \def\FV@Space {%
+            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
+            {\kern\fontdimen2\font}%
+        }%
+        
+        % Allow breaks at special characters using \PYG... macros.
+        \Wrappedbreaksatspecials
+        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active 	
+        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
+    }
+    \makeatother
+
     % Exact colors from NB
-    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
-    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
-
-
+    \definecolor{incolor}{HTML}{303F9F}
+    \definecolor{outcolor}{HTML}{D84315}
+    \definecolor{cellborder}{HTML}{CFCFCF}
+    \definecolor{cellbackground}{HTML}{F7F7F7}
+    
+    % prompt
+    \newcommand{\prompt}[4]{
+        \llap{{\color{#2}[#3]: #4}}\vspace{-1.25em}
+    }
+    
 
     
     % Prevent overflowing lines due to hard-to-break entities
@@ -313,41 +388,17 @@
     \begin{document}
     
     
-    
-\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com. The code of this work and the instructions to execute it are available at https://github.com/rltonoli/MotionRetargeting.}}
-\affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
-\title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
+    \author{Rodolfo L. Tonoli \thanks{ e-mail: rltonoli@gmail.com }}\affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}\title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}\keywords{Motion Capture, Motion Retargeting, 3D Animation, Virtual Agents.}\CCScatlist{\CCScat{Computing methodologies}{Computer graphics}{Animation}{Motion capture}}\abstract{ Motion Capture is used to record the movements of a real actor and animate virtual characters. It generates intrinsically realistic animations, since it tracks the motion of a real person. But the process to transfer the motion to a character is not straigthforward since the actor and the character may have distinct body proportions and distinct skeleton topology. The present work focus on retargeting the motion from Motion Capture to a 3D character while preserving the spatial relationship betweeen extremity joints, the hands and the feet, and the body surface. This process retain the semantic information information of movements in which the hands and the feet interact with the surface of the body, as holding the hands in front of the eyes or mouth. The Motion Retargeting process described computes new positions of the extremity joints regarding surface components of the body and adapts the pose of the virtual character in the posistions computed using Inverse Kinematics. The motion can be transfered to topologically different skeletons. The results shows that the resulting motion is being adapted accordingly to the body surface and it is as smooth as the original motion capture data.}
+   
 \maketitle
+\captionsetup{labelformat=default}
 
     
     
 
     
 
-    \hypertarget{abstract}{%
-\section{Abstract}\label{abstract}}
-
-Motion Capture is used to record the movements of a real actor and
-animate virtual characters. It generates intrinsically realistic
-animations, since it tracks the motion of a real person. But the process
-to transfer the motion to a character is not straigthforward since the
-actor and the character may have distinct body proportions and distinct
-skeleton topology. The present work focus on retargeting the motion from
-Motion Capture to a 3D character while preserving the spatial
-relationship betweeen extremity joints, the hands and the feet, and the
-body surface. This process retain the semantic information information
-of movements in which the hands and the feet interact with the surface
-of the body, as holding the hands in front of the eyes or mouth. The
-Motion Retargeting process described computes new positions of the
-extremity joints regarding surface components of the body and adapts the
-pose of the virtual character in the posistions computed using Inverse
-Kinematics. The motion can be transfered to topologically different
-skeletons. The results shows that the resulting motion is being adapted
-accordingly to the body surface and it is as smooth as the original
-motion capture data.
-
-    \hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+    \section{Introduction}\label{introduction}
 
 Toy Story was released in 1995 as the first full length film produced
 entirely through computer animation techniques\cite{henne}. Besides
@@ -403,8 +454,7 @@ distinct topologies of the hierarchical structure. This complicates the
 motion retargeting process because the joints and bones of one skeleton
 may not exist in another or be represented in another way.
 
-    \hypertarget{workflow}{%
-\section{Workflow}\label{workflow}}
+    \section{Workflow}\label{workflow}
 
 \begin{figure}
 \centering
@@ -412,11 +462,9 @@ may not exist in another or be represented in another way.
 \caption{Workflow}
 \end{figure}
 
-    \hypertarget{initial-retargeting}{%
-\section{Initial Retargeting}\label{initial-retargeting}}
+    \section{Initial Retargeting}\label{initial-retargeting}
 
-\hypertarget{skeleton-animation}{%
-\subsection{Skeleton Animation}\label{skeleton-animation}}
+\subsection{Skeleton Animation}\label{skeleton-animation}
 
 This chapter describes the Initial Motion Retargeting process, which
 receives the source animation and the target skeleton as inputs, both
@@ -465,13 +513,11 @@ M_{global}^{n} = \prod_{i=0}^{n} M_{local}^{i}
 
     \begin{Verbatim}[commandchars=\\\{\}]
 The mapping was successful
-
-    \end{Verbatim}
-
+\end{Verbatim}
 
 
-    \hypertarget{skeleton-mapping}{%
-\subsection{Skeleton Mapping}\label{skeleton-mapping}}
+
+    \subsection{Skeleton Mapping}\label{skeleton-mapping}
 
 Figure 2 presents two approaches to represent a virtual human skeleton.
 Although both can animate a humanoid-shaped model, transferring motions
@@ -497,8 +543,7 @@ head joints, and right and left joints for the shoulders, elbows,
 wrists, femurs, knees and feet. The joints referenced will be the only
 ones used in the Initial Retargeting proccess.
 
-\hypertarget{bones-alignment}{%
-\subsection{Bones Alignment}\label{bones-alignment}}
+\subsection{Bones Alignment}\label{bones-alignment}
 
 Bones Alignment enforces that the vector of a mapped joint from the
 target skeleton pointing towards its child joint has the same direction
@@ -565,24 +610,9 @@ is equal to these values recombined.
     \end{equation}
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-The mapping was successful
-Starting Posture Initialization
-100 frames done. 3.5744922161102295 seconds.
-200 frames done. 2.492293119430542 seconds.
-300 frames done. 2.373246431350708 seconds.
-400 frames done. 2.4257733821868896 seconds.
-500 frames done. 2.2180330753326416 seconds.
-600 frames done. 2.406946897506714 seconds.
+    \section{Surface Characterization}\label{surface-characterization}
 
-    \end{Verbatim}
-
-
-    \hypertarget{surface-characterization}{%
-\section{Surface Characterization}\label{surface-characterization}}
-
-\hypertarget{surface-calibration}{%
-\subsection{Surface Calibration}\label{surface-calibration}}
+\subsection{Surface Calibration}\label{surface-calibration}
 
 Molla defined a set of points to characterize the surface of the 3D
 model's and performer's body, the yellow dots on Figure 5.1. The points
@@ -604,8 +634,7 @@ to avoid self-penetration in the animation.
 The user obtains the surface points and radius of each limb of the
 character during its creation or through a 3D modeling software.
 
-    \hypertarget{surface-motion-estimation}{%
-\subsection{Surface Motion Estimation}\label{surface-motion-estimation}}
+    \subsection{Surface Motion Estimation}\label{surface-motion-estimation}
 
 Collecting the position of the surface points is not enough because the
 performer may walk around, jump or simply twist his torso. In those
@@ -617,9 +646,8 @@ nearest mapped joint. Thus, the point behaves as a child of the mapped
 joint and the transformations from every joint in the hierarchy is also
 applied to the point.
 
-    \hypertarget{computing-egocentric-coordinates}{%
-\subsection{Computing Egocentric
-Coordinates}\label{computing-egocentric-coordinates}}
+    \subsection{Computing Egocentric
+Coordinates}\label{computing-egocentric-coordinates}
 
 We compute the egocentric coordinates of each limb joint in respect to
 each triangle in the surface mesh and for each capsule limb. Molla
@@ -687,9 +715,8 @@ which will result in odd-looking poses or in a position impossible to
 reach.
 
 
-    \hypertarget{kinematic-path-normalization}{%
-\subsection{Kinematic Path
-Normalization}\label{kinematic-path-normalization}}
+    \subsection{Kinematic Path
+Normalization}\label{kinematic-path-normalization}
 
 Molla proposes the Kinematic Path Normalization to adjust the joints'
 position according to the length of the bones in the skeleton. The
@@ -735,8 +762,7 @@ as
 \mathbf{\hat{v}} = \frac{\mathbf{v}}{\tau},\ where\ \tau = \sum_{i=0}^{n}||\mathbf{s}_{i}||\ |cos(\alpha_{i})|
 \end{equation}
 
-\hypertarget{summary}{%
-\subsection{Summary}\label{summary}}
+\subsection{Summary}\label{summary}
 
 Given a joint \(j\) and a surface component \(i\), we store the set of
 parametes: \(\mathbf{e}_{j,i} = (\mathbf{\hat{\lambda}}_{i}\),
@@ -751,25 +777,14 @@ E_{j} = \{e_{j,1}, e_{j,2},...,e_{j,m}\}
 
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-100 frames done. 11.339604377746582 seconds.
-200 frames done. 9.986479043960571 seconds.
-300 frames done. 9.843039274215698 seconds.
-400 frames done. 9.849372863769531 seconds.
-500 frames done. 9.810274839401245 seconds.
-600 frames done. 9.979029178619385 seconds.
-
-    \end{Verbatim}
-
-
+    \captionsetup{labelformat=default}
     \begin{figure}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_18_0.png}\end{center}
+        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_15_0.png}\end{center}
         \caption{Displacement Vectors.}
         \label{fig:result1}
     \end{figure}
     
-    \hypertarget{pose-adaptation}{%
-\section{Pose Adaptation}\label{pose-adaptation}}
+    \section{Pose Adaptation}\label{pose-adaptation}
 
 To adapt the pose of the target skeleton enforcing the same surface
 spatial relationship as the souce motion, we denormalize the egocentric
@@ -787,8 +802,7 @@ by each normalized displacement vector \(\mathbf{\hat{v}}_{i}\).
 Finally, the new position of the joint is given by Equation
 \ref{eq:egocoord_jointpos2}.
 
-\hypertarget{inverse-kinematics}{%
-\subsection{Inverse Kinematics}\label{inverse-kinematics}}
+\subsection{Inverse Kinematics}\label{inverse-kinematics}
 
 We use the Jacobian Transpose method for the Inverse Kinematics (IK) to
 compute the new pose of the avatar \cite{buss}. The kinematic paths fed
@@ -799,25 +813,37 @@ avoids dragging the spine and the hips in order to reach the target
 position.
 
 
-    \hypertarget{results}{%
-\section{Results}\label{results}}
+    \section{Results}\label{results}
 
-Figure \ref{fig:result1}
+Figure \ref{fig:result1} shows the pose of the source and target
+skeletons of a motion capture take in which the actor is touching its
+right eyebrow with his fingers. In the middle, the target animation is
+the result of the bones alignment, where the red \(X\) indicates the
+correct position of the right hand joint computed through the egocentric
+coordinates. The Inverse Kinematis receives the pose and the correct
+position and computes the new pose of the target skeleton, on the right.
+
+Darker colors of blue represent a greater importance of the displacement
+vectors. As expected from a movement close to the head, mesh componets
+of the head are contributing more than those of the body. Furthermore,
+the triangles with normal vectors pointing in the same direction as the
+displacement vectors are also receiving greater weights, which indicates
+that the orthogonality factor exposes possible interaction of the joints
+with the surface.
 
 
+    \captionsetup{labelformat=default}
     \begin{figure}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_22_0.png}\end{center}
+        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_19_0.png}\end{center}
         \caption{}
         \label{}
     \end{figure}
     
-    \hypertarget{conclusion}{%
-\section{Conclusion}\label{conclusion}}
+    \section{Conclusion}\label{conclusion}
 
 (Em Construção)
 
-    \hypertarget{future-works}{%
-\section{Future Works}\label{future-works}}
+    \section{Future Works}\label{future-works}
 
 (Em construção)
 

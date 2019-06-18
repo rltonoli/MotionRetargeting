@@ -1,0 +1,13 @@
+((*- extends 'article.tplx' -*))
+
+((* block docclass *))
+\documentclass{article}
+    \usepackage{caption}
+    %\DeclareCaptionLabelFormat{nolabel}{}
+    \captionsetup{labelformat=default}
+((* endblock docclass *))
+
+((* block bibliography *))
+\bibliographystyle{abbrv-doi}
+\bibliography{reference}
+((* endblock bibliography *))

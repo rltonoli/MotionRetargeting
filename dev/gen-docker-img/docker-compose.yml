@@ -1,0 +1,6 @@
+version: '1'
+services:
+  paper:
+    build: .
+    ports:
+     - "8888:8888"

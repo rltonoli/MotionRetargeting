@@ -4,9 +4,6 @@
 ((* block docclass *))
 \documentclass{vgtc}
 
-
-
-
   \pdfoutput=1\relax                   % create PDFs from pdfLaTeX
   \pdfcompresslevel=9                  % PDF Compression
   \pdfoptionpdfminorversion=7          % create PDF 1.7
@@ -29,24 +26,79 @@
 \usepackage{multirow}
 \usepackage{caption}
 \usepackage{color}
-
-
+\captionsetup{labelformat=default}
 ((* endblock docclass *))
 
 
+% Author and Title from metadata
 ((* block maketitle *))
-\author{Rodolfo L. Tonoli\thanks{e-mail: rltonoli@gmail.com. The code of this work and the instructions to execute it are available at https://github.com/rltonoli/MotionRetargeting.}}
-\affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
-\title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["author"]: -*))
+        ((*- if nb.metadata["latex_metadata"]["thanks"]: -*))
+                \author{((( nb.metadata["latex_metadata"]["author"] ))) \thanks{ ((( nb.metadata["latex_metadata"]["thanks"] ))) }}
+        ((*- else -*))
+            \author{((( nb.metadata["latex_metadata"]["author"] )))}
+        ((*- endif *))
+    ((*- else -*))
+        \author{Rodolfo L. Tonoli\thanks{rltonoli@gmail.com}}
+    ((*- endif *))
+((*- else -*))
+    \author{Rodolfo L. Tonoli\thanks{rltonoli@gmail.com}}
+((*- endif *))
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["affiliation"]: -*))
+        \affiliation{((( nb.metadata["latex_metadata"]["affiliation"] )))}
+    ((*- endif *))
+((*- else -*))
+    \affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}
+((*- endif *))
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["title"]: -*))
+        \title{((( nb.metadata["latex_metadata"]["title"] )))}
+    ((*- endif *))
+((*- else -*))
+    \title{((( resources.metadata.name )))}
+((*- endif *))
+
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["keywords"]: -*))
+        \keywords{((( nb.metadata["latex_metadata"]["keywords"] )))}
+    ((*- endif *))
+((*- endif *))
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["indexterm1"]: -*))
+        ((*- if nb.metadata["latex_metadata"]["indexterm2"]: -*))
+            ((*- if nb.metadata["latex_metadata"]["indexterm3"]: -*))
+                ((*- if nb.metadata["latex_metadata"]["indexterm4"]: -*))
+                    \CCScatlist{\CCScat{((( nb.metadata["latex_metadata"]["indexterm1"] )))}{((( nb.metadata["latex_metadata"]["indexterm2"] )))}{(((nb.metadata["latex_metadata"]["indexterm3"] )))}{(((nb.metadata["latex_metadata"]["indexterm4"] )))}}
+                ((*- endif *))
+            ((*- endif *))
+        ((*- endif *))
+    ((*- endif *))
+((*- endif *))
+
+((*- if nb.metadata["latex_metadata"]: -*))
+    ((*- if nb.metadata["latex_metadata"]["abstract"]: -*))
+        \abstract{ ((( nb.metadata["latex_metadata"]["abstract"] )))}
+    ((*- endif *))
+((*- endif *))
+   
 \maketitle
+\captionsetup{labelformat=default}
 ((* endblock maketitle *))
 
 ((* block input_group *))
 ((* endblock input_group *))
-
+   
 
 % New mechanism for rendering figures with captions
 ((*- block data_png -*))
+
 ((*- if cell.metadata.widefigure: -*))
     ((( draw_widefigure_with_caption(output.metadata.filenames['image/png'], cell.metadata.caption, cell.metadata.label) )))
 ((*- else -*))
@@ -103,8 +155,9 @@
 ((* macro draw_figure_with_caption(filename, caption, label) -*))
 ((* set filename = filename | posix_path *))
 ((*- block figure scoped -*))
+    \captionsetup{labelformat=default}
     \begin{figure}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
+        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
         \caption{((( caption )))}
         \label{((( label )))}
     \end{figure}
@@ -115,8 +168,9 @@
 ((* macro draw_widefigure_with_caption(filename, caption, label) -*))
 ((* set filename = filename | posix_path *))
 ((*- block figure_wide scoped -*))
+    \captionsetup{labelformat=default}
     \begin{figure*}
-        \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
+        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{((( filename )))}\end{center}
         \caption{((( caption )))}
         \label{((( label )))}
     \end{figure*}
