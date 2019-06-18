@@ -10,7 +10,7 @@
 
 
     
-\documentclass{article}
+\documentclass{vgtc}
 
 
 
@@ -93,7 +93,6 @@
     \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
     \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
                                 % normalem makes italics be italics, not underlines
-    \usepackage{mathrsfs}
     
 
     
@@ -120,8 +119,6 @@
     \definecolor{ansi-cyan-intense}{HTML}{258F8F}
     \definecolor{ansi-white}{HTML}{C5C1B4}
     \definecolor{ansi-white-intense}{HTML}{A1A6B2}
-    \definecolor{ansi-default-inverse-fg}{HTML}{FFFFFF}
-    \definecolor{ansi-default-inverse-bg}{HTML}{000000}
 
     % commands and environments needed by pandoc snippets
     % extracted from the output of `pandoc -s`
@@ -168,18 +165,11 @@
     % Define a nice break command that doesn't care if a line doesn't already
     % exist.
     \def\br{\hspace*{\fill} \\* }
-    % Math Jax compatibility definitions
+    % Math Jax compatability definitions
     \def\gt{>}
     \def\lt{<}
-    \let\Oldtex\TeX
-    \let\Oldlatex\LaTeX
-    \renewcommand{\TeX}{\textrm{\Oldtex}}
-    \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
     % Document parameters
-    % Document title
     \title{MotionRetargetingPaper-3}
-    
-    
     
     
     
@@ -324,8 +314,7 @@
 
     
 
-    \hypertarget{abstract}{%
-\section{Abstract}\label{abstract}}
+    \section{Abstract}\label{abstract}
 
 Motion Capture is used to record the movements of a real actor and
 animate virtual characters. It generates intrinsically realistic
@@ -346,8 +335,7 @@ skeletons. The results shows that the resulting motion is being adapted
 accordingly to the body surface and it is as smooth as the original
 motion capture data.
 
-    \hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+    \section{Introduction}\label{introduction}
 
 Toy Story was released in 1995 as the first full length film produced
 entirely through computer animation techniques\cite{henne}. Besides
@@ -403,8 +391,7 @@ distinct topologies of the hierarchical structure. This complicates the
 motion retargeting process because the joints and bones of one skeleton
 may not exist in another or be represented in another way.
 
-    \hypertarget{workflow}{%
-\section{Workflow}\label{workflow}}
+    \section{Workflow}\label{workflow}
 
 \begin{figure}
 \centering
@@ -412,11 +399,9 @@ may not exist in another or be represented in another way.
 \caption{Workflow}
 \end{figure}
 
-    \hypertarget{initial-retargeting}{%
-\section{Initial Retargeting}\label{initial-retargeting}}
+    \section{Initial Retargeting}\label{initial-retargeting}
 
-\hypertarget{skeleton-animation}{%
-\subsection{Skeleton Animation}\label{skeleton-animation}}
+\subsection{Skeleton Animation}\label{skeleton-animation}
 
 This chapter describes the Initial Motion Retargeting process, which
 receives the source animation and the target skeleton as inputs, both
@@ -470,8 +455,7 @@ The mapping was successful
 
 
 
-    \hypertarget{skeleton-mapping}{%
-\subsection{Skeleton Mapping}\label{skeleton-mapping}}
+    \subsection{Skeleton Mapping}\label{skeleton-mapping}
 
 Figure 2 presents two approaches to represent a virtual human skeleton.
 Although both can animate a humanoid-shaped model, transferring motions
@@ -497,8 +481,7 @@ head joints, and right and left joints for the shoulders, elbows,
 wrists, femurs, knees and feet. The joints referenced will be the only
 ones used in the Initial Retargeting proccess.
 
-\hypertarget{bones-alignment}{%
-\subsection{Bones Alignment}\label{bones-alignment}}
+\subsection{Bones Alignment}\label{bones-alignment}
 
 Bones Alignment enforces that the vector of a mapped joint from the
 target skeleton pointing towards its child joint has the same direction
@@ -578,11 +561,9 @@ Starting Posture Initialization
     \end{Verbatim}
 
 
-    \hypertarget{surface-characterization}{%
-\section{Surface Characterization}\label{surface-characterization}}
+    \section{Surface Characterization}\label{surface-characterization}
 
-\hypertarget{surface-calibration}{%
-\subsection{Surface Calibration}\label{surface-calibration}}
+\subsection{Surface Calibration}\label{surface-calibration}
 
 Molla defined a set of points to characterize the surface of the 3D
 model's and performer's body, the yellow dots on Figure 5.1. The points
@@ -604,8 +585,7 @@ to avoid self-penetration in the animation.
 The user obtains the surface points and radius of each limb of the
 character during its creation or through a 3D modeling software.
 
-    \hypertarget{surface-motion-estimation}{%
-\subsection{Surface Motion Estimation}\label{surface-motion-estimation}}
+    \subsection{Surface Motion Estimation}\label{surface-motion-estimation}
 
 Collecting the position of the surface points is not enough because the
 performer may walk around, jump or simply twist his torso. In those
@@ -617,9 +597,8 @@ nearest mapped joint. Thus, the point behaves as a child of the mapped
 joint and the transformations from every joint in the hierarchy is also
 applied to the point.
 
-    \hypertarget{computing-egocentric-coordinates}{%
-\subsection{Computing Egocentric
-Coordinates}\label{computing-egocentric-coordinates}}
+    \subsection{Computing Egocentric
+Coordinates}\label{computing-egocentric-coordinates}
 
 We compute the egocentric coordinates of each limb joint in respect to
 each triangle in the surface mesh and for each capsule limb. Molla
@@ -687,9 +666,8 @@ which will result in odd-looking poses or in a position impossible to
 reach.
 
 
-    \hypertarget{kinematic-path-normalization}{%
-\subsection{Kinematic Path
-Normalization}\label{kinematic-path-normalization}}
+    \subsection{Kinematic Path
+Normalization}\label{kinematic-path-normalization}
 
 Molla proposes the Kinematic Path Normalization to adjust the joints'
 position according to the length of the bones in the skeleton. The
@@ -735,8 +713,7 @@ as
 \mathbf{\hat{v}} = \frac{\mathbf{v}}{\tau},\ where\ \tau = \sum_{i=0}^{n}||\mathbf{s}_{i}||\ |cos(\alpha_{i})|
 \end{equation}
 
-\hypertarget{summary}{%
-\subsection{Summary}\label{summary}}
+\subsection{Summary}\label{summary}
 
 Given a joint \(j\) and a surface component \(i\), we store the set of
 parametes: \(\mathbf{e}_{j,i} = (\mathbf{\hat{\lambda}}_{i}\),
@@ -765,11 +742,10 @@ E_{j} = \{e_{j,1}, e_{j,2},...,e_{j,m}\}
     \begin{figure}
         \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_18_0.png}\end{center}
         \caption{Displacement Vectors.}
-        \label{fig:result1}
+        \label{fig:dispvectors}
     \end{figure}
     
-    \hypertarget{pose-adaptation}{%
-\section{Pose Adaptation}\label{pose-adaptation}}
+    \section{Pose Adaptation}\label{pose-adaptation}
 
 To adapt the pose of the target skeleton enforcing the same surface
 spatial relationship as the souce motion, we denormalize the egocentric
@@ -787,8 +763,7 @@ by each normalized displacement vector \(\mathbf{\hat{v}}_{i}\).
 Finally, the new position of the joint is given by Equation
 \ref{eq:egocoord_jointpos2}.
 
-\hypertarget{inverse-kinematics}{%
-\subsection{Inverse Kinematics}\label{inverse-kinematics}}
+\subsection{Inverse Kinematics}\label{inverse-kinematics}
 
 We use the Jacobian Transpose method for the Inverse Kinematics (IK) to
 compute the new pose of the avatar \cite{buss}. The kinematic paths fed
@@ -799,25 +774,36 @@ avoids dragging the spine and the hips in order to reach the target
 position.
 
 
-    \hypertarget{results}{%
-\section{Results}\label{results}}
+    \section{Results}\label{results}
 
-Figure \ref{fig:result1}
+Figure \ref{fig:result1} shows the pose of the source and target
+skeletons of a motion capture take in which the actor is touching its
+right eyebrow with his fingers. In the middle, the target animation is
+the result of the bones alignment, where the red \(X\) indicates the
+correct position of the right hand joint computed through the egocentric
+coordinates. The Inverse Kinematis receives the pose and the correct
+position and computes the new pose of the target skeleton, on the right.
+
+Darker colors of blue represent a greater importance of the displacement
+vectors. As expected from a movement close to the head, mesh componets
+of the head are contributing more than those of the body. Furthermore,
+the triangles with normal vectors pointing in the same direction as the
+displacement vectors are also receiving greater weights, which indicates
+that the orthogonality factor exposes possible interaction of the joints
+with the surface.
 
 
     \begin{figure}
         \begin{center}\adjustimage{max size={0.9\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_22_0.png}\end{center}
-        \caption{}
-        \label{}
+        \caption{Results.}
+        \label{fig:result1}
     \end{figure}
     
-    \hypertarget{conclusion}{%
-\section{Conclusion}\label{conclusion}}
+    \section{Conclusion}\label{conclusion}
 
 (Em Construção)
 
-    \hypertarget{future-works}{%
-\section{Future Works}\label{future-works}}
+    \section{Future Works}\label{future-works}
 
 (Em construção)
 

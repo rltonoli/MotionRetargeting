@@ -97,6 +97,7 @@
         ((( draw_figure_with_caption(output.metadata.filenames['application/pdf'], "") )))
     ((*- endif *))
 ((*- endif *))
+
 ((*- endblock -*))
 
 % Draw a figure using the graphicx package.
