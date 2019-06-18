@@ -1,7 +1,6 @@
 numpy==1.16.4
 matplotlib==3.0.3
 jupyter==1.0.0
-pyqt==5.9.2
-qt==5.9.7
-ffmepg==4.1.3
-pandoc==1.19
+PyQt5
+ffmpeg
+pandoc

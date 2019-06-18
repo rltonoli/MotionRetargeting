@@ -3,6 +3,6 @@ services:
   paper:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev/gen-docker-img/Dockerfile
     ports:
      - "8889:8889"
