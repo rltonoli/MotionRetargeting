@@ -1,10 +1,15 @@
 
+% Default to the notebook output style
+
+    
+
+
+% Inherit from the specified cell style.
 
 
 
 
-
-
+    
 \documentclass{vgtc}
 
   \pdfoutput=1\relax                   % create PDFs from pdfLaTeX
@@ -31,12 +36,8 @@
 \usepackage{color}
 \captionsetup{labelformat=default}
 
-
-    \usepackage[breakable]{tcolorbox}
-    \tcbset{nobeforeafter} % prevents tcolorboxes being placing in paragraphs
-    \usepackage{float}
-    \floatplacement{figure}{H} % forces figures to be placed at the correct location
-
+    
+    
     \usepackage[T1]{fontenc}
     % Nicer default font (+ math font) than Computer Modern for most use cases
     \usepackage{mathpazo}
@@ -61,7 +62,7 @@
     \DeclareCaptionLabelFormat{nolabel}{}
     \captionsetup{labelformat=nolabel}
 
-    \usepackage{adjustbox} % Used to constrain images to a maximum size
+    \usepackage{adjustbox} % Used to constrain images to a maximum size 
     \usepackage{xcolor} % Allow colors to be defined
     \usepackage{enumerate} % Needed for markdown enumerations to work
     \usepackage{geometry} % Used to adjust the document margins
@@ -77,8 +78,8 @@
     \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
     \usepackage[utf8x]{inputenc} % Allow utf-8 characters in the tex document
     \usepackage{fancyvrb} % verbatim replacement that allows latex
-    \usepackage{grffile} % extends the file name processing of package graphics
-                         % to support a larger range
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
     % The hyperref package gives us a pdf with properly built
     % internal navigation ('pdf bookmarks' for the table of contents,
     % internal cross-reference links, web links for URLs, etc.)
@@ -88,9 +89,10 @@
     \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
     \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
                                 % normalem makes italics be italics, not underlines
+    
 
-
-
+    
+    
     % Colors for the hyperref package
     \definecolor{urlcolor}{rgb}{0,.145,.698}
     \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
@@ -135,7 +137,7 @@
     \newcommand{\RegionMarkerTok}[1]{{#1}}
     \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
     \newcommand{\NormalTok}[1]{{#1}}
-
+    
     % Additional commands for more recent versions of Pandoc
     \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
     \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
@@ -154,8 +156,8 @@
     \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
     \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
     \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
-
-
+    
+    
     % Define a nice break command that doesn't care if a line doesn't already
     % exist.
     \def\br{\hspace*{\fill} \\* }
@@ -164,12 +166,12 @@
     \def\lt{<}
     % Document parameters
     \title{MotionRetargetingPaper-3}
+    
+    
+    
 
-
-
-
-
-% Pygments definitions
+    % Pygments definitions
+    
 \makeatletter
 \def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
     \let\PY@ul=\relax \let\PY@tc=\relax%
@@ -271,98 +273,15 @@
 \makeatother
 
 
-    % For linebreaks inside Verbatim environment from package fancyvrb.
-    \makeatletter
-        \newbox\Wrappedcontinuationbox
-        \newbox\Wrappedvisiblespacebox
-        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}}
-        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
-        \newcommand*\Wrappedcontinuationindent {3ex }
-        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox}
-        % Take advantage of the already applied Pygments mark-up to insert
-        % potential linebreaks for TeX processing.
-        %        {, <, #, %, $, ' and ": go to next line.
-        %        _, }, ^, &, >, - and ~: stay at end of broken line.
-        % Use of \textquotesingle for straight quote.
-        \newcommand*\Wrappedbreaksatspecials {%
-            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}%
-            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}%
-            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}%
-            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}%
-            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}%
-            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}%
-            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}%
-            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}%
-            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}%
-            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}%
-            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}%
-            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}%
-            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}%
-            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}%
-        }
-        % Some characters . , ; ? ! / are not pygmentized.
-        % This macro makes them "active" and they will insert potential linebreaks
-        \newcommand*\Wrappedbreaksatpunct {%
-            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}%
-            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}%
-            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}%
-            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}%
-            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}%
-            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}%
-            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}%
-            \catcode`\.\active
-            \catcode`\,\active
-            \catcode`\;\active
-            \catcode`\:\active
-            \catcode`\?\active
-            \catcode`\!\active
-            \catcode`\/\active
-            \lccode`\~`\~
-        }
-    \makeatother
-
-    \let\OriginalVerbatim=\Verbatim
-    \makeatletter
-    \renewcommand{\Verbatim}[1][1]{%
-        %\parskip\z@skip
-        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
-        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
-        \def\FancyVerbFormatLine ##1{\hsize\linewidth
-            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
-                \doublehyphendemerits\z@\finalhyphendemerits\z@
-                \strut ##1\strut}%
-        }%
-        % If the linebreak is at a space, the latter will be displayed as visible
-        % space at end of first line, and a continuation symbol starts next line.
-        % Stretch/shrink are however usually zero for typewriter font.
-        \def\FV@Space {%
-            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
-            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
-            {\kern\fontdimen2\font}%
-        }%
-
-        % Allow breaks at special characters using \PYG... macros.
-        \Wrappedbreaksatspecials
-        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
-        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
-    }
-    \makeatother
-
     % Exact colors from NB
-    \definecolor{incolor}{HTML}{303F9F}
-    \definecolor{outcolor}{HTML}{D84315}
-    \definecolor{cellborder}{HTML}{CFCFCF}
-    \definecolor{cellbackground}{HTML}{F7F7F7}
-
-    % prompt
-    \newcommand{\prompt}[4]{
-        \llap{{\color{#2}[#3]: #4}}\vspace{-1.25em}
-    }
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
 
 
 
+    
     % Prevent overflowing lines due to hard-to-break entities
-    \sloppy
+    \sloppy 
     % Setup hyperref package
     \hypersetup{
       breaklinks=true,  % so long urls are correctly broken across lines
@@ -372,24 +291,23 @@
       citecolor=citecolor,
       }
     % Slightly bigger margins than the latex defaults
-
+    
     \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
-
-
+    
+    
 
     \begin{document}
-
-
+    
+    
     \author{Rodolfo L. Tonoli \thanks{ e-mail: rltonoli@gmail.com }}\affiliation{Department of Computer Engineering and Industrial Automation\\School of Electrical and Computer Engineering\\University of Campinas}\title{Motion Capture Retargeting: Preserving Surface Spatial Relationship}\keywords{Motion Capture, Motion Retargeting, 3D Animation, Virtual Agents.}\CCScatlist{\CCScat{Computing methodologies}{Computer graphics}{Animation}{Motion capture}}\abstract{ Motion Capture is used to record the movements of a real actor and animate virtual characters. It generates intrinsically realistic animations, since it tracks the motion of a real person. But the process to transfer the motion to a character is not straigthforward since the actor and the character may have distinct body proportions and distinct skeleton topology. The present work focus on retargeting the motion from Motion Capture to a 3D character while preserving the spatial relationship betweeen extremity joints, the hands and the feet, and the body surface. This process retain the semantic information information of movements in which the hands and the feet interact with the surface of the body, as holding the hands in front of the eyes or mouth. The Motion Retargeting process described computes new positions of the extremity joints regarding surface components of the body and adapts the pose of the virtual character in the posistions computed using Inverse Kinematics. The motion can be transfered to topologically different skeletons. The results shows that the resulting motion is being adapted accordingly to the body surface and it is as smooth as the original motion capture data.}
-
+   
 \maketitle
 \captionsetup{labelformat=default}
 
+    
+    
 
-
-
-
-
+    
     \section{Introduction}\label{introduction}
 
 Toy Story was released in 1995 as the first full length film produced
@@ -446,7 +364,7 @@ distinct topologies of the hierarchical structure. This complicates the
 motion retargeting process because the joints and bones of one skeleton
 may not exist in another or be represented in another way.
 
-    \section{Workflow}\label{workflow}
+    \section{Method}\label{method}
 
 \begin{figure}
 \centering
@@ -454,11 +372,11 @@ may not exist in another or be represented in another way.
 \caption{Workflow}
 \end{figure}
 
-    \section{Initial Retargeting}\label{initial-retargeting}
+    \subsection{Initial Retargeting}\label{initial-retargeting}
 
-\subsection{Skeleton Animation}\label{skeleton-animation}
+\subsubsection{Skeleton Animation}\label{skeleton-animation}
 
-This chapter describes the Initial Motion Retargeting process, which
+This Section describes the Initial Motion Retargeting process, which
 receives the source animation and the target skeleton as inputs, both
 BVH files. The output is an animation of the target skeleton performing
 the movements of the source skeleton that can be exported as a BVH file.
@@ -477,39 +395,17 @@ representation of the skeleton allows an all-around description of the
 motion by only preserving the rotational and translational values of a
 joint regarding its parent joint, i.e., local rotations and
 translations. The local transform matrix \(M\) is the combination of
-both rotation \(R\) and translation matrix \(T\):
-
-\begin{equation}
-\label{eq:transformmatrix}
-M = TR = \begin{bmatrix}
-    R_{3x3} & T \\
-    0 & 1
-    \end{bmatrix}
-\end{equation}
-
-Given a joint \(n\) in the skeleton, its global transform matrix
-\(M_{global}^{n}\) is the combination of the local transform matrices of
-all the joints above the hierarchy. The position of the joint is
-computed through the global transform matrix.
+both rotation \(R\) and translation matrix \(T\). Given a joint \(n\) in
+the skeleton, its global transform matrix \(M_{global}^{n}\) is the
+combination of the local transform matrices of all the joints above the
+hierarchy:
 
 \begin{equation}
 \label{eq:transformmatrixglobal}
 M_{global}^{n} = \prod_{i=0}^{n} M_{local}^{i}
 \end{equation}
 
-\begin{equation}
-\label{eq:position}
-\mathbf{p}_{n} = M_{global}^{n}[0,0,0,1]^T
-\end{equation}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-The mapping was successful
-\end{Verbatim}
-
-
-
-    \subsection{Skeleton Mapping}\label{skeleton-mapping}
+    \subsubsection{Skeleton Mapping}\label{skeleton-mapping}
 
 Figure 2 presents two approaches to represent a virtual human skeleton.
 Although both can animate a humanoid-shaped model, transferring motions
@@ -520,8 +416,7 @@ possible to infer a correspondence using the joints' name automatically,
 but note that they may not be placed at the same point in the respective
 skeleton, as the shoulders in the figure. Therefore, the user can
 provide a correspondence between skeletons to properly map joints and to
-perform the motion retargeting (Detailed in Appendix A) (cite Monzani
-and Hsieh).
+perform the motion retargeting\cite{hsieh}.
 
 \begin{figure}
 \centering
@@ -535,7 +430,7 @@ head joints, and right and left joints for the shoulders, elbows,
 wrists, femurs, knees and feet. The joints referenced will be the only
 ones used in the Initial Retargeting proccess.
 
-\subsection{Bones Alignment}\label{bones-alignment}
+\subsubsection{Bones Alignment}\label{bones-alignment}
 
 Bones Alignment enforces that the vector of a mapped joint from the
 target skeleton pointing towards its child joint has the same direction
@@ -546,20 +441,20 @@ correspondent target joint.
 The rotation matrix \(R_{A}\) to align the bone vector of the target
 skeleton onto the bone vector of the source skeleton is calculated and
 applied to the global rotation of the target skeleton joint
-\(R_{NG}^{n}\):
+\(R_{G}^{n}\):
 
 \begin{equation}
         \label{eq:newglobal}
         R_{NG}^{n} = R_{A} R_{G}^{n}
         \end{equation}
 
-Then, as expected by the BVH file format, we recover the local rotation
-of the joint \(R_{L}^{n}\), the new global orientation is multiplied by
-its parent inverse rotation matrix.
+where \(R_{NG}^{n}\) is the new global rotation. Then we recover the
+local rotation of the joint \(R_{L}^{n}\), the new global orientation is
+multiplied by its parent inverse rotation matrix.
 
 \begin{equation}
         \label{eq:newglobal2}
-        R_{NG}^{n} = \left(\prod_{i=0}^{n-1} R_{L}^{i}\right) R_{L}^{n}
+        R_{NG}^{n} = \left(\prod_{i=0}^{n-1} R_{L}^{i}\right) R_{L}^{n} 
         \end{equation}
 
 \begin{equation}
@@ -576,57 +471,40 @@ In the following frames, the rotation of a joint in the source
 animation, from the last frame to the current one, replaces the rotation
 \(R_{A}\) to align the correspondent joint in the target skeleton.
 
-The source motion of the root joint is decomposed into vertical and
-horizontal movement that are analyzed separately. The horizontal
-movement is the projection of the root joint position into the ground,
-the reason of the decomposition is the use of this projected point as a
-reference point for the feet (Section Surface Characterization).
-
-The ratio is given by:
-
-\begin{equation}
-    \label{eq:heightratio}
-    ratio = \frac{h_{root}^{tgt}}{h_{root}^{src}}
-    \end{equation}
-
-where \(h_{root}^{tgt}\) and \(h_{root}^{src}\) are the heights of the
-root joint of the target and source skeletons in the first frame. The
-horizontal and vertical movement of the root, \(g(t)\) and \(h(t)\) is
-computed. The translation of the root joint regarding the system origin
-is equal to these values recombined.
+We compute the ratio of the heights of the root joint from the target
+and source skeletons in the first frame. The position of the root joint
+in the target skeleton is adapted using Equation \ref{eq:rootmov}.
 
 \begin{equation}
     \label{eq:rootmov}
-    \mathbf{g}(t)_{root}^{src} = \mathbf{g}(t)_{root}^{tgt} ratio \hspace{10pt} and \hspace{10pt}
-    \mathbf{h}(t)_{root}^{src} = \mathbf{h}(t)_{root}^{tgt} ratio
+    \mathbf{p}(t)_{tgt} = \mathbf{p}(t)_{src} ratio
     \end{equation}
 
+    \subsection{Surface Calibration}\label{surface-calibration}
 
-    \section{Surface Characterization}\label{surface-characterization}
-
-\subsection{Surface Calibration}\label{surface-calibration}
-
-Molla defined a set of points to characterize the surface of the 3D
-model's and performer's body, the yellow dots on Figure 5.1. The points
-are connected throughtriangles to create a mesh that represents the body
-surface. The points on the surfaceof the character and the performer
-need to be collected as close to the relative positionas possible, since
-the triangle mesh differences between the characters must represent
-differences of the characters' surface, thus sampling surface points
-from different placesintroduces noise to the analysis. The thickness of
-the limbs are also registered and later they are represented by capsules
-to avoid self-penetration in the animation.
+Molla\cite{molla} defined a set of points to characterize the surface of
+the 3D model's and performer's body, the yellow dots in Figure 3. The
+points are connected throughtriangles to create a mesh that represents
+the body surface. The points on the surfaceof the character and the
+performer need to be collected as close to the relative positionas
+possible, since the triangle mesh differences between the characters
+must represent differences of the characters' surface, thus sampling
+surface points from different placesintroduces noise to the analysis.
+The thickness of the limbs are also registered and later they are
+represented by capsules to avoid self-penetration in the animation.
 
 \begin{figure}
 \centering
 \includegraphics{../figures/TalitaPoints.png}
-\caption{Character Surface Calibration}
+\caption{Surface points sampled in the 3D character for the Surface
+Calibration.}
 \end{figure}
 
 The user obtains the surface points and radius of each limb of the
 character during its creation or through a 3D modeling software.
 
-    \subsection{Surface Motion Estimation}\label{surface-motion-estimation}
+    \subsubsection{Surface Motion
+Estimation}\label{surface-motion-estimation}
 
 Collecting the position of the surface points is not enough because the
 performer may walk around, jump or simply twist his torso. In those
@@ -685,7 +563,7 @@ properties:
 
 \begin{equation}
 \label{eq:importance}
-\lambda = \lambda_p \lambda_{\perp}\hspace{0.1cm},\hspace{0.2cm} with \hspace{0.5cm}\lambda_p =  \frac{1}{||\mathbf{v}||}\hspace{0.5cm} and \hspace{0.5cm}\lambda_{\perp} = cos(\alpha)
+\lambda = \lambda_p \lambda_{\perp}\hspace{0.1cm},\hspace{0.1cm} with \hspace{0.2cm}\lambda_p =  \frac{1}{||\mathbf{v}||}\hspace{0.2cm} and \hspace{0.2cm}\lambda_{\perp} = cos(\alpha)
 \end{equation}
 
 where \(\alpha\) is the angle between the displacement vector
@@ -707,14 +585,14 @@ which will result in odd-looking poses or in a position impossible to
 reach.
 
 
-    \subsection{Kinematic Path
+    \subsubsection{Kinematic Path
 Normalization}\label{kinematic-path-normalization}
 
 Molla proposes the Kinematic Path Normalization to adjust the joints'
 position according to the length of the bones in the skeleton. The
 kinematic path is the route through joints and bone segments from a
-reference point to a limb joint. Figure BLA represents the kinematic
-path for the right hand to the root.
+reference point to a limb joint. Figure 4 represents the kinematic path
+for the right hand to the root.
 
 Note that the goal of the Kinematic Path Normalization is to adjust the
 position of the joint accordingly to the length of the bone segments.
@@ -732,6 +610,12 @@ for limbs capsules, we compute the displacement vector as
 \label{eq:dispvector}
 \mathbf{v} = \mathbf{-x}_{j0} + \sum_{i=1}^{n} \mathbf{s}_i
 \end{equation}
+
+\begin{figure}
+\centering
+\includegraphics{../figures/SkeletonKinematicPath.png}
+\caption{Kinematic Path}
+\end{figure}
 
 Molla computes the contribution of each bone segment \(\mathbf{s}_i\) in
 the kinematic path to the position of the joint relative to the surface,
@@ -754,10 +638,10 @@ as
 \mathbf{\hat{v}} = \frac{\mathbf{v}}{\tau},\ where\ \tau = \sum_{i=0}^{n}||\mathbf{s}_{i}||\ |cos(\alpha_{i})|
 \end{equation}
 
-\subsection{Summary}\label{summary}
+\subsubsection{Summary}\label{summary}
 
 Given a joint \(j\) and a surface component \(i\), we store the set of
-parametes: \(\mathbf{e}_{j,i} = (\mathbf{\hat{\lambda}}_{i}\),
+parametes: \(\mathbf{e}_{j,i} = (\hat{\lambda}_{i}\),
 \(\mathbf{\hat{v}}\), \(C_{i})\). The egocentric coordinates of a joint
 \(E_{j}\) for a given frame considering all \(m\) surface components is
 given by
@@ -768,15 +652,7 @@ E_{j} = \{e_{j,1}, e_{j,2},...,e_{j,m}\}
 \end{equation}
 
 
-
-    \captionsetup{labelformat=default}
-    \begin{figure}
-        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_15_0.png}\end{center}
-        \caption{Displacement Vectors.}
-        \label{fig:dispvectors}
-    \end{figure}
-
-    \section{Pose Adaptation}\label{pose-adaptation}
+    \subsection{Pose Adaptation}\label{pose-adaptation}
 
 To adapt the pose of the target skeleton enforcing the same surface
 spatial relationship as the souce motion, we denormalize the egocentric
@@ -794,7 +670,7 @@ by each normalized displacement vector \(\mathbf{\hat{v}}_{i}\).
 Finally, the new position of the joint is given by Equation
 \ref{eq:egocoord_jointpos2}.
 
-\subsection{Inverse Kinematics}\label{inverse-kinematics}
+\subsubsection{Inverse Kinematics}\label{inverse-kinematics}
 
 We use the Jacobian Transpose method for the Inverse Kinematics (IK) to
 compute the new pose of the avatar \cite{buss}. The kinematic paths fed
@@ -803,7 +679,6 @@ limb to the limb extremity: the shoulder to the hand and the upper leg
 to the foot. This allows a separete IK computing for each limb and
 avoids dragging the spine and the hips in order to reach the target
 position.
-
 
     \section{Results}\label{results}
 
@@ -826,25 +701,34 @@ with the surface.
 
     \captionsetup{labelformat=default}
     \begin{figure}
-        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_19_0.png}\end{center}
-        \caption{}
-        \label{}
+        \begin{center}\adjustimage{max size={1\linewidth}{0.4\paperheight}}{MotionRetargetingPaper-3_files/MotionRetargetingPaper-3_12_0.png}\end{center}
+        \caption{Results.}
+        \label{fig:result1}
     \end{figure}
-
+    
     \section{Conclusion}\label{conclusion}
 
-(Em Construção)
+We applied the method described by Eray Molla to ensure the interaction
+of the extremity joints with the body surface when retargeting motion
+from Motion Capture data. With the body surfaces calibrated, the
+algorithm computes a new pose for the target skeleton and uses Inverse
+Kinematics to adapt the skeleton into the desired pose. We found that
+the method is able to improve the target animation when the hands are
+interacting with the body surface.
 
-    \section{Future Works}\label{future-works}
-
-(Em construção)
+In future works, we wish to conduct a perpectual evaluation to assess
+the resemblance between the target animations, adpated and non-adapted,
+and the video of the Motion Capture actor performing the same movement.
+Furthermore, towards sign language avatars, the work could be extended
+to the fingers adaptation, since hand configuration is a key aspect on
+sign characterization.
 
 
     % Add a bibliography block to the postdoc
-
-
+    
+    
 \bibliographystyle{abbrv-doi}
 \bibliography{reference}
 
-
+    
     \end{document}
