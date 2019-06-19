@@ -196,22 +196,27 @@ def projectedBarycentricCoord(p, p1, p2, p3):
     p1 = np.asarray(p1)
     p2 = np.asarray(p2)
     p3 = np.asarray(p3)
+    inside = False
     
     u = p2-p1
     v = p3-p1
     b = np.zeros(3)
     #Algorithm:
+    # n = unitVector(np.cross( u, v ))
     n = np.cross( u, v )
     oneOver4ASquared = 1.0 / np.dot( n, n )
     w = p - p1
     b[2]= np.dot( np.cross( u, w ), n ) * oneOver4ASquared
     b[1]= np.dot( np.cross( w, v ), n ) * oneOver4ASquared
     b[0]= 1.0 - b[1] - b[2]
-    
+    if b[0]>=0 and b[0]<=1:
+        if b[1]>=0 and b[1]<=1:
+            if b[2]>=0 and b[2]<=1:
+                inside = True
     projectedpoint = b[0]*p1 + b[1]*p2 + b[2]*p3
     distance = p-projectedpoint
     
-    return b, distance, n
+    return n, b, distance, projectedpoint, inside
 
 def barycentric2cartesian(bary, v1, v2, v3):
     if len(bary)>3: bary=bary[:3]
@@ -454,11 +459,11 @@ def eulerFromMatrix(matrix, order='ZXY'):
         if not isNear(matrix[2,1],1) and not isNear(matrix[2,1], -1):
             x1 = np.arcsin(matrix[2,1])
             #sin(pi-theta) = sin(theta)
-            x2 = np.pi - x1
+            # x2 = np.pi - x1
             y1 = np.arctan2(-matrix[2,0]/np.cos(x1),matrix[2,2]/np.cos(x1))
-            y2 = np.arctan2(-matrix[2,0]/np.cos(x2),matrix[2,2]/np.cos(x2))
+            # y2 = np.arctan2(-matrix[2,0]/np.cos(x2),matrix[2,2]/np.cos(x2))
             z1 = np.arctan2(-matrix[0,1]/np.cos(x1),matrix[1,1]/np.cos(x1))
-            z2 = np.arctan2(-matrix[0,1]/np.cos(x2),matrix[1,1]/np.cos(x2))
+            # z2 = np.arctan2(-matrix[0,1]/np.cos(x2),matrix[1,1]/np.cos(x2))
         else:
             warning = True
             if isNear(matrix[2,1],-1):

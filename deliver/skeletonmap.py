@@ -53,7 +53,7 @@ class SkeletonMap:
 
 
     def getJointsNoRoot(self):
-        jointlist = [self.hips, self.spine, self.spine1, self.spine2, self.spine3, self.neck, self.neck1, self.head, self.larm, self.lforearm, self.lhand, self.rarm, self.rforearm, self.rhand, self.lupleg, self.llowleg, self.lfoot, self.rupleg, self.rlowleg, self.rfoot]
+        jointlist = [self.hips, self.spine, self.spine1, self.spine2, self.spine3, self.neck, self.neck1, self.head, self.lshoulder,self.larm, self.lforearm, self.lhand, self.rshoulder, self.rarm, self.rforearm, self.rhand, self.lupleg, self.llowleg, self.lfoot, self.rupleg, self.rlowleg, self.rfoot]
         return jointlist
 
     def getJointsNoRootHips(self):
@@ -193,9 +193,9 @@ class SkeletonMap:
             print('Right Toe Base not found')
             flag = False
         if flag:
+            #print('The mapping was successful')
             pass
         else:
-            print('Something went wrong in skeletonmap.SkeletonMap.checkJoints()')
             return None
 
 
