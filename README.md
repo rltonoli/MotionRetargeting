@@ -11,13 +11,25 @@ LICENSE - condições de licença
 #### Ambiente
 Para reproduzir os resultados do artigo é necessário executar o notebook no ambiente de desenvolvimento que consiste em:
 * Python 3.7.3
-* Biblioteca numpy 1.16.4
-* Biblioteca matplotlib 3.0.3
-* Biblioteca jupyter 1.0.0
+* Biblioteca numpy 1.16
+* Biblioteca matplotlib 3
+* Biblioteca jupyter
+* Biblioteca PyQt5
+* Biblioteca ffmpeg
 
 Versões antigas do matplotlib podem apresentar erros durante a visualização das animações. Visite [matplotlib](https://matplotlib.org/mpl_toolkits/mplot3d/tutorial.html) para mais informações.
 
 #### Instruções para execução
+
+##### *Instalação com Docker*
+
+Com o Docker instalado, faça download do repositório ou clone através do comando `git clone https://github.com/rltonoli/MotionRetargeting`.
+
+Navegue até o diretório local do repositório utilizando o terminal (no modo administrador) e execute o comando `docker-compose up`.
+
+Abra o browser e entre no endereço http://localhost:8889. Vá até home/deliver e abra o notebook (.ipynb).
+
+(Se necessário você pode gerar a imagem local através do Dockerfile disponível em (pasta do repositório)/dev/gen-docker-img e executar o comando `docker build .\ -t myimage`)
 
 ##### *Instalação com Anaconda*
 
@@ -25,28 +37,15 @@ Recomenda-se a instalação do [Anaconda](https://www.anaconda.com/distribution/
 
 Faça download do repositório ou clone através do comando `git clone https://github.com/rltonoli/MotionRetargeting`.
 
-Crie um novo ambiente com as bibliotecas necessárias usando `conda create -n mrpy3 python=3.7 numpy matplotlib=3.0.3 jupyter`, sendo *mrpy3* o nome do novo ambiente. Acesse o ambiente criado através de `conda activate mrpy3`.
+Crie um novo ambiente com as bibliotecas necessárias usando `conda create -n mrpy3 python=3.7 numpy matplotlib=3.0.3 jupyter pyqt5 ffmpeg`, sendo *mrpy3* o nome do novo ambiente. Acesse o ambiente criado através de `conda activate mrpy3`.
 
 Para executar o notebook, abra o Anaconda Prompt, acesse o diretório local do repositório clonado e insira do comando `jupyter notebook`. Você pode especificar a porta do notebook através do comando `jupyter notebook --port=8889`, por exemplo. Uma nova aba no seu browser será criada, acesse a pasta *deliver* e clique no notebook executável (.ipynb).
 
 (Uma cópia do ambiente de desenvolvimento está disponível em (repositório)/dev/mrenv.yml. Para instalar a cópia exata do ambiente abra o Anaconda Prompt, acesse a pasta /dev o diretório local do repositório clonado (repositório)/dev e insira o comando `conda env create -f mrenv.yml`. Acesse o ambiente criado através de `conda activate mrpy3`. Lembre de voltar para a pasta do repositório antes de ativar o jupyter notebook).
 
-
 ##### *Instalação com pip*
 
 (Não recomendado) Você precisará ter instalado o Python 3.7.3 e instalar as bibliotecas descritas na seção *Ambiente* através de `pip install numpy = 1.16.4`, `pip install matplotlib = 3.0.3` e `pip install jupyter = 1.0.0`.
-
-##### *Instalação com Docker*
-(Ainda não é possível visualizar as animações, apenas os gráficos do artigo)
-
-Com o Docker instalado, faça download do repositório ou clone através do comando `git clone https://github.com/rltonoli/MotionRetargeting`.
-
-Crie o container através de `docker run -p 8888:8888 -v (pasta do repositório):/home/mr rltonoli/ia369z`.
-
-Abra o browser e entre no endereço http://localhost:8888. Vá até home/mr/deliver e abra o notebook (.ipynb).
-
-(Se necessário você pode gerar a imagem local através do Dockerfile disponível em (pasta do repositório)/dev/gen-docker-img e executar o comando `docker build .\ -t myimage`)
-
 
 #### Dados
 
@@ -57,3 +56,5 @@ AVISO: OS DADOS DISPONÍVEIS NO OSF *NÃO* ESTÁ DISPONÍVEL SOB A MESMA LICENÇ
 #### Erros conhecidos
 
 * Versões anteriores a Python 3.6 acusará erro de diretório na tentativa de abrir os arquivos através do comando open() (visitar [PEP 519](https://docs.python.org/3/whatsnew/3.6.html) para maiores informações). Substituir as linhas Path("../diretorio/arquivo.txt") por '..\\diretorio\\arquivo.txt' de acordo com o padrão de diretório do sistema operacional.
+
+* Em alguns testes no Windows 10, Docker Desktop 18, o comando `docker-compose up` não funciona na primeira vez. A imagem e o container são criados mas não é possível acessá-lo. O problema só é resolvido removendo o container e imagem (usando docker rm container_id e docker rmi image_id), reiniciando o docker e executando `docker-compose up` novamente.
